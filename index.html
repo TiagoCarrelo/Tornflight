@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TornFlight — Travel Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══ RESET & VARS ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08090c;--bg2:#0f1117;--bg3:#161b24;--card:#0d1018;
+  --border:#1e2535;--border2:#28364d;
+  --accent:#e8c547;--adim:rgba(232,197,71,.1);
+  --red:#f04a3a;--rdim:rgba(240,74,58,.09);
+  --green:#34d07a;--gdim:rgba(52,208,122,.08);
+  --blue:#4a9ef0;--bdim:rgba(74,158,240,.08);
+  --purple:#a07af0;--pdim:rgba(160,122,240,.08);
+  --orange:#f09030;
+  --text:#c8d4e8;--muted:#4a5870;--muted2:#6a7a90;
+  --F:'Syne',sans-serif;--M:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--F);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.hidden{display:none!important}
+
+/* ═══ LOGIN ═══ */
+#page-login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;
+  background:radial-gradient(ellipse 70% 60% at 15% 60%,rgba(232,197,71,.05),transparent 70%),var(--bg)}
+.lbox{width:100%;max-width:430px;border:1px solid var(--border2);border-radius:6px;overflow:hidden;background:var(--card)}
+.lbanner{background:var(--accent);padding:1.7rem 2rem 1.3rem}
+.lbrand{font-family:var(--M);font-size:1.5rem;font-weight:700;color:#06080c;letter-spacing:-.04em}
+.lsub{font-size:.7rem;font-weight:700;color:rgba(6,8,12,.5);text-transform:uppercase;letter-spacing:.12em;margin-top:4px}
+.lbody{padding:1.7rem 2rem}
+.lbody h2{font-size:1rem;font-weight:700;color:#fff;margin-bottom:.3rem}
+.hint{font-size:.75rem;color:var(--muted2);margin-bottom:1.3rem;line-height:1.7}
+.hint a{color:var(--accent);text-decoration:none}
+.fl{display:block;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px}
+.fi{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:4px;
+  padding:.58rem .9rem;color:var(--text);font-family:var(--F);font-size:.85rem;outline:none;transition:border-color .2s}
+.fi.mono{font-family:var(--M);font-size:.78rem}
+.fi:focus{border-color:var(--accent)}
+.fi::placeholder{color:var(--muted)}
+.fg{margin-bottom:.85rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:4px;
+  font-family:var(--M);font-size:.78rem;font-weight:700;cursor:pointer;transition:opacity .18s,transform .1s;
+  padding:.63rem 1.1rem;letter-spacing:.03em}
+.btn:active{transform:scale(.97)}
+.bp{background:var(--accent);color:#06080c;width:100%;margin-top:.3rem}
+.bp:hover{opacity:.87}
+.bp:disabled{opacity:.45;cursor:not-allowed}
+.bg{background:transparent;border:1px solid var(--border2);color:var(--muted2)}
+.bg:hover{border-color:var(--muted);color:var(--text)}
+.bd{background:transparent;border:1px solid rgba(240,74,58,.3);color:var(--red);font-size:.72rem}
+.bd:hover{background:var(--rdim)}
+.bsm{padding:.36rem .72rem;font-size:.72rem}
+.ebox{background:var(--rdim);border:1px solid rgba(240,74,58,.3);border-radius:4px;padding:.52rem .8rem;
+  font-size:.75rem;color:var(--red);margin-bottom:.9rem}
+.saved-hdr{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
+  padding-top:1.2rem;margin-top:1.2rem;border-top:1px solid var(--border);margin-bottom:.65rem}
+.arow{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);
+  border:1px solid var(--border);border-radius:4px;padding:.52rem .8rem;margin-bottom:.38rem;
+  cursor:pointer;transition:border-color .18s}
+.arow:hover{border-color:var(--accent)}
+.ar-name{font-size:.83rem;font-weight:700;color:#fff}
+.ar-key{font-family:var(--M);font-size:.63rem;color:var(--muted)}
+.adel{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:2px 4px;transition:color .18s}
+.adel:hover{color:var(--red)}
+
+/* ═══ APP SHELL ═══ */
+#page-app{display:none;flex-direction:column;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:200;height:52px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 1.4rem;
+  background:rgba(8,9,12,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--M);font-size:1.05rem;font-weight:700;color:var(--accent);letter-spacing:-.03em;flex-shrink:0}
+.tnav{display:flex;gap:2px;overflow-x:auto}
+.tnav::-webkit-scrollbar{display:none}
+.nb{background:none;border:none;font-family:var(--F);font-size:.77rem;font-weight:600;color:var(--muted);
+  cursor:pointer;padding:.36rem .78rem;border-radius:4px;transition:all .14s;white-space:nowrap;
+  text-transform:uppercase;letter-spacing:.05em}
+.nb:hover{color:var(--text);background:var(--bg3)}
+.nb.active{color:var(--accent);background:var(--adim)}
+.tright{display:flex;align-items:center;gap:.75rem;flex-shrink:0}
+.uchip{font-family:var(--M);font-size:.7rem;color:var(--muted2)}
+.uchip b{color:var(--accent)}
+
+/* ═══ TRAVEL ALERT BAR ═══ */
+#tab{display:none;align-items:center;gap:.75rem;flex-wrap:wrap;
+  padding:.5rem 1.4rem;background:linear-gradient(90deg,rgba(232,197,71,.12),rgba(232,197,71,.04));
+  border-bottom:1px solid rgba(232,197,71,.25)}
+#tab.show{display:flex}
+.tab-icon{font-size:1.1rem;flex-shrink:0}
+.tab-text{font-size:.8rem;color:var(--text)}
+.tab-text b{color:var(--accent)}
+.tab-cd{font-family:var(--M);font-size:.9rem;font-weight:700;color:var(--accent);margin-left:auto}
+.tab-dest{font-size:.75rem;color:var(--muted2);font-family:var(--M)}
+.notif-btn{font-size:.7rem;background:rgba(232,197,71,.1);border:1px solid rgba(232,197,71,.25);
+  border-radius:3px;color:var(--accent);cursor:pointer;padding:3px 9px;font-family:var(--M);transition:all .15s}
+.notif-btn:hover{background:rgba(232,197,71,.2)}
+.notif-btn.on{background:rgba(52,208,122,.1);border-color:rgba(52,208,122,.3);color:var(--green)}
+
+/* ═══ CONTENT ═══ */
+.content{flex:1;max-width:1440px;width:100%;margin:0 auto;padding:1.4rem}
+.view{display:none}.view.active{display:block}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.4rem}
+.pht{font-size:1.65rem;font-weight:800;color:#fff;line-height:1}
+.pht span{color:var(--accent)}
+.phs{font-family:var(--M);font-size:.68rem;color:var(--muted);margin-top:4px}
+
+/* ═══ CONTROLS ═══ */
+.cb{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;margin-bottom:1.1rem}
+.ci{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:.5rem .82rem;
+  color:var(--text);font-family:var(--F);font-size:.82rem;outline:none;transition:border-color .18s;min-width:0}
+.ci:focus{border-color:var(--accent)}
+.ci::placeholder{color:var(--muted)}
+.cs{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:.5rem .75rem;
+  color:var(--text);font-family:var(--F);font-size:.82rem;outline:none;cursor:pointer}
+.sw{width:230px}
+.rfbtn{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:.5rem .88rem;
+  font-family:var(--M);font-size:.72rem;color:var(--text);cursor:pointer;transition:all .14s;
+  display:flex;align-items:center;gap:5px;white-space:nowrap}
+.rfbtn:hover{border-color:var(--accent);color:var(--accent)}
+.rfbtn:disabled{opacity:.38;cursor:not-allowed}
+.spin{display:inline-block}.spinning{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══ DEST TABS ═══ */
+.dtabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:1.1rem}
+.dtab{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:4px;padding:.4rem .76rem;font-family:var(--F);font-size:.74rem;font-weight:600;
+  color:var(--muted2);cursor:pointer;transition:all .14s;white-space:nowrap}
+.dtab:hover{border-color:var(--muted);color:var(--text)}
+.dtab.active{background:var(--adim);border-color:var(--accent);color:var(--accent)}
+.dc{font-family:var(--M);font-size:.6rem;background:var(--bg3);border-radius:20px;padding:1px 6px;color:var(--muted)}
+.dtab.active .dc{background:rgba(232,197,71,.15);color:var(--accent)}
+
+/* ═══ STATUS BAR ═══ */
+.sbar{display:flex;align-items:center;gap:.55rem;font-family:var(--M);font-size:.67rem;
+  color:var(--muted);margin-bottom:.9rem;flex-wrap:wrap}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dg{background:var(--green);animation:blink 2s infinite}
+.dy{background:var(--orange)}
+.dr{background:var(--red)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ═══ PRODUCT CARDS ═══ */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.85rem}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:.9rem;
+  display:flex;flex-direction:column;gap:.55rem;transition:border-color .16s,background .16s;animation:fu .22s ease both}
+.pc:hover{border-color:rgba(232,197,71,.22);background:#0f141d}
+@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.ptop{display:flex;justify-content:space-between;align-items:flex-start;gap:5px}
+.pname{font-size:.86rem;font-weight:700;color:#fff;line-height:1.3;flex:1}
+.fbtn{background:none;border:none;cursor:pointer;font-size:1rem;line-height:1;color:var(--muted);transition:all .18s;padding:2px;flex-shrink:0}
+.fbtn:hover{color:var(--accent);transform:scale(1.15)}
+.fbtn.on{color:var(--accent)}
+.pprice{font-family:var(--M);font-size:1.05rem;font-weight:700;color:var(--accent)}
+.pmkt{font-family:var(--M);font-size:.67rem;color:var(--muted2)}
+.pprofit{font-family:var(--M);font-size:.72rem}
+.pos{color:var(--green)}.neg{color:var(--red)}
+.pills{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+.pill{font-family:var(--M);font-size:.59rem;padding:2px 7px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);white-space:nowrap}
+.pg{color:var(--green);border-color:rgba(52,208,122,.25);background:var(--gdim)}
+.pr{color:var(--red);border-color:rgba(240,74,58,.2);background:var(--rdim)}
+.pb{color:var(--blue);border-color:rgba(74,158,240,.2);background:var(--bdim)}
+.pp{color:var(--purple);border-color:rgba(160,122,240,.2);background:var(--pdim)}
+.pfoot{font-family:var(--M);font-size:.63rem;color:var(--muted);display:flex;align-items:center;gap:5px;
+  border-top:1px solid var(--border);padding-top:.5rem;margin-top:.05rem}
+
+/* ═══ SKELETON ═══ */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.85rem}
+.skel{height:135px;background:var(--card);border:1px solid var(--border);border-radius:5px;position:relative;overflow:hidden}
+.skel::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.024),transparent);animation:shim 1.4s infinite}
+@keyframes shim{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* ═══ EMPTY ═══ */
+.empty{text-align:center;padding:3rem 2rem;color:var(--muted2)}
+.ei{font-size:2.5rem;margin-bottom:.7rem;opacity:.3}
+.empty p{font-size:.82rem;line-height:1.75}
+.empty code{font-family:var(--M);font-size:.7rem;background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--red)}
+
+/* ═══ PANEL ═══ */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1.15rem}
+.ptitle{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.95rem}
+
+/* ═══ MONITOR / TRACKER ═══ */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:700px){.tgrid{grid-template-columns:1fr}}
+.ts-state{display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem}
+.ts-bigdot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.tsd-traveling{background:var(--orange);box-shadow:0 0 8px rgba(240,144,48,.45);animation:blink 1.2s infinite}
+.tsd-abroad{background:var(--green);box-shadow:0 0 8px rgba(52,208,122,.35)}
+.tsd-home{background:var(--muted)}
+.ts-lbl{font-size:.9rem;font-weight:700;color:#fff}
+.ts-sub{font-size:.7rem;color:var(--muted2);font-family:var(--M);margin-top:2px}
+.ts-cd{font-family:var(--M);font-size:2rem;font-weight:700;color:var(--accent);margin:.5rem 0;letter-spacing:.04em}
+.ts-bw{background:var(--bg2);border-radius:20px;height:5px;overflow:hidden;margin-bottom:.65rem}
+.ts-bar{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),#f0d070);transition:width .8s ease}
+.irow{display:flex;align-items:center;justify-content:space-between;font-size:.71rem;margin-bottom:.32rem}
+.il{color:var(--muted)}.iv{font-family:var(--M);color:var(--text)}
+.ntog{display:flex;align-items:center;gap:.6rem;margin-top:.8rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.sw-wrap{position:relative;width:38px;height:20px;cursor:pointer;flex-shrink:0}
+.sw-wrap input{opacity:0;width:0;height:0;position:absolute}
+.sw-track{position:absolute;inset:0;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;transition:all .2s}
+.sw-thumb{position:absolute;top:3px;left:3px;width:12px;height:12px;background:var(--muted);border-radius:50%;transition:all .2s}
+.sw-wrap input:checked~.sw-track{background:var(--adim);border-color:var(--accent)}
+.sw-wrap input:checked~.sw-thumb{left:21px;background:var(--accent)}
+.nlbl{font-size:.74rem;color:var(--muted2)}
+
+/* ═══ PEOPLE ABROAD ═══ */
+.prow{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);
+  border:1px solid var(--border);border-radius:4px;padding:.52rem .78rem;margin-bottom:.4rem;
+  transition:border-color .14s}
+.prow:hover{border-color:var(--border2)}
+.pleft{display:flex;align-items:center;gap:.6rem}
+.avt{width:30px;height:30px;background:var(--bg3);border-radius:50%;border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;font-family:var(--M);color:var(--muted)}
+.pname{font-size:.8rem;font-weight:700;color:#fff}
+.pmeta{font-family:var(--M);font-size:.62rem;color:var(--muted)}
+.pbadge{font-family:var(--M);font-size:.6rem;padding:2px 7px;border-radius:3px;
+  background:var(--gdim);color:var(--green);border:1px solid rgba(52,208,122,.25)}
+
+/* ═══ POLL LOG ═══ */
+.plog{font-family:var(--M);font-size:.67rem;color:var(--muted);max-height:110px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:2px}
+.plog-line{padding:2px 0;border-bottom:1px solid var(--border)}
+.plog-ok{color:var(--green)}.plog-err{color:var(--red)}.plog-info{color:var(--blue)}
+
+/* ═══ DESTINATION GUIDE ═══ */
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:.9rem}
+.dgc{background:var(--card);border:1px solid var(--border);border-radius:5px;overflow:hidden;transition:border-color .16s}
+.dgc:hover{border-color:var(--border2)}
+.dgch{display:flex;align-items:center;gap:.7rem;padding:.9rem 1rem .8rem;border-bottom:1px solid var(--border)}
+.dgcf{font-size:1.6rem;line-height:1}
+.dgct{font-size:.92rem;font-weight:700;color:#fff}
+.dgcity{font-size:.67rem;color:var(--muted);font-family:var(--M)}
+.dgb{padding:.85rem 1rem}
+.dgs{margin-bottom:.75rem}
+.dgs:last-child{margin-bottom:0}
+.dgsl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.38rem}
+.extras{display:flex;flex-wrap:wrap;gap:.35rem}
+.xb{display:flex;align-items:center;gap:4px;font-size:.7rem;font-weight:600;
+  padding:3px 8px;border-radius:3px;border:1px solid;white-space:nowrap}
+.x-rehab{color:#a0e090;border-color:rgba(160,224,144,.3);background:rgba(160,224,144,.07)}
+.x-bank{color:#f0d060;border-color:rgba(240,208,96,.3);background:rgba(240,208,96,.07)}
+.x-fortune{color:#e090f0;border-color:rgba(224,144,240,.3);background:rgba(224,144,240,.07)}
+.x-hunt{color:#f0a050;border-color:rgba(240,160,80,.3);background:rgba(240,160,80,.07)}
+.x-safe{color:var(--green);border-color:rgba(52,208,122,.3);background:var(--gdim)}
+.x-warn{color:var(--orange);border-color:rgba(240,144,48,.3);background:rgba(240,144,48,.08)}
+.x-danger{color:var(--red);border-color:rgba(240,74,58,.3);background:var(--rdim)}
+.frow{display:flex;gap:.5rem;font-size:.7rem;margin-bottom:.27rem}
+.flb{color:var(--muted);width:70px;flex-shrink:0;font-family:var(--M)}
+.fvl{color:var(--text)}
+.fvl b{color:var(--accent)}
+
+/* ═══ PLANNER / TRIP ═══ */
+.pcols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:680px){.pcols{grid-template-columns:1fr}}
+.dsr{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);
+  border:1px solid var(--border);border-radius:4px;padding:.55rem .78rem;margin-bottom:.42rem;
+  cursor:pointer;transition:border-color .14s}
+.dsr:hover{border-color:var(--accent)}
+.dsrl{display:flex;align-items:center;gap:8px}
+.dsrf{font-size:1.2rem}.dsrn{font-size:.8rem;font-weight:700;color:#fff}
+.dsrc{font-family:var(--M);font-size:.62rem;color:var(--muted)}
+.dsrr{text-align:right}
+.dsrp{font-family:var(--M);font-size:.75rem;color:var(--green)}
+.dsra{font-family:var(--M);font-size:.6rem;color:var(--muted)}
+.tir{display:flex;align-items:center;justify-content:space-between;padding:.45rem .65rem;border-radius:4px;
+  margin-bottom:.3rem;background:var(--bg2);border:1px solid var(--border);cursor:pointer;transition:border-color .14s}
+.tir:hover{border-color:var(--accent)}
+.tirl{display:flex;align-items:center;gap:7px}
+.tirrank{font-family:var(--M);font-size:.62rem;color:var(--muted);width:16px;flex-shrink:0}
+.tirn{font-size:.77rem;font-weight:700;color:#fff}
+.tird{font-family:var(--M);font-size:.61rem;color:var(--muted)}
+.tirp{font-family:var(--M);font-size:.8rem;color:var(--accent);flex-shrink:0}
+
+/* ═══ TRIP BUILDER ═══ */
+.tbuild{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1.2rem;margin-bottom:1rem}
+.tbform{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin-bottom:.9rem}
+@media(max-width:600px){.tbform{grid-template-columns:1fr}}
+.tbacts{display:flex;gap:.5rem;flex-wrap:wrap}
+
+/* ═══ TRIP RESULT ═══ */
+.tresult{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1.2rem;margin-bottom:1rem}
+.riskrow{display:flex;align-items:center;gap:1.2rem;margin-bottom:1rem;flex-wrap:wrap;
+  padding:.8rem;background:var(--bg2);border-radius:4px;border:1px solid var(--border)}
+.riskbox{text-align:center}
+.riskbox .rl{font-size:.63rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.riskbox .rv{font-family:var(--M);font-size:.95rem;font-weight:700;color:var(--text)}
+.rv.low{color:var(--green)}.rv.med{color:var(--orange)}.rv.high{color:var(--red)}
+.warnings{margin-bottom:1rem}
+.wline{display:flex;align-items:flex-start;gap:.5rem;font-size:.74rem;padding:.45rem .65rem;
+  border-radius:3px;margin-bottom:.35rem}
+.wl-safe{background:var(--gdim);color:var(--green);border:1px solid rgba(52,208,122,.2)}
+.wl-warn{background:rgba(240,144,48,.08);color:var(--orange);border:1px solid rgba(240,144,48,.2)}
+.wl-danger{background:var(--rdim);color:var(--red);border:1px solid rgba(240,74,58,.2)}
+.timeline{display:flex;flex-direction:column;gap:.65rem;margin-top:1rem}
+.tstep{display:flex;align-items:flex-start;gap:.75rem;position:relative}
+.tstep::before{content:'';position:absolute;left:10px;top:24px;width:1px;
+  height:calc(100% + .65rem);background:var(--border)}
+.tstep:last-child::before{display:none}
+.tsi{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;flex-shrink:0;border:1px solid var(--border);background:var(--bg2);z-index:1;margin-top:2px}
+.tsc{flex:1}
+.tst{font-size:.83rem;font-weight:700;color:#fff;margin-bottom:2px}
+.tss{font-size:.71rem;color:var(--muted2);line-height:1.5}
+.tsbadge{display:inline-flex;align-items:center;gap:3px;font-size:.66rem;font-family:var(--M);
+  padding:2px 7px;border-radius:3px;margin-top:3px}
+
+/* ═══ SETTINGS ═══ */
+.ssec{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1.15rem;margin-bottom:.9rem;max-width:520px}
+.skv{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;gap:1rem;flex-wrap:wrap}
+.skv:last-child{margin-bottom:0}
+.sklbl{font-size:.82rem;font-weight:600;color:var(--text)}.skdsc{font-size:.7rem;color:var(--muted);margin-top:2px}
+.kd{font-family:var(--M);font-size:.7rem;background:var(--bg2);border:1px solid var(--border);
+  border-radius:4px;padding:.42rem .7rem;color:var(--muted2);word-break:break-all;margin-top:.4rem}
+
+/* ═══ TOAST ═══ */
+#toast{position:fixed;bottom:1.4rem;right:1.4rem;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:4px;padding:.58rem 1rem;font-family:var(--M);font-size:.74rem;color:var(--text);
+  z-index:9999;opacity:0;transform:translateY(7px);transition:all .2s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.ok{border-color:rgba(52,208,122,.4);color:var(--green)}
+#toast.err{border-color:rgba(240,74,58,.4);color:var(--red)}
+#toast.info{border-color:rgba(74,158,240,.35);color:var(--blue)}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:580px){
+  .topbar{padding:0 .85rem}.content{padding:1rem .85rem}
+  .pht{font-size:1.3rem}.sw{width:100%}
+  .nb .nl{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ LOGIN ════════════════ -->
+<div id="page-login">
+  <div class="lbox">
+    <div class="lbanner">
+      <div class="lbrand">✈ TornFlight</div>
+      <div class="lsub">Foreign Stock · Travel Monitor · Trip Planner</div>
+    </div>
+    <div class="lbody">
+      <h2>Entrar na conta</h2>
+      <p class="hint">
+        Recomendado: <strong>Full Access API Key</strong> para monitor de viagem e lista de jogadores.<br>
+        Gera em <a href="https://www.torn.com/preferences.php#tab=api" target="_blank">torn.com → Preferences → API</a>
+      </p>
+      <div id="lerr" class="ebox hidden"></div>
+      <div class="fg"><label class="fl">Nome da conta</label>
+        <input id="in-name" class="fi" type="text" placeholder="Ex: Tiago" autocomplete="off"></div>
+      <div class="fg"><label class="fl">API Key (16 caract.)</label>
+        <input id="in-key" class="fi mono" type="text" placeholder="aBcD1234eFgH5678" autocomplete="off" maxlength="24"></div>
+      <button id="btn-login" class="btn bp" onclick="doLogin()">→ Entrar</button>
+      <div id="saved-sec">
+        <div class="saved-hdr">Contas guardadas</div>
+        <div id="saved-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ APP ════════════════ -->
+<div id="page-app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">✈ TornFlight</div>
+    <div class="tnav">
+      <button class="nb active" id="nav-market"    onclick="gv('market')">📦 <span class="nl">Mercado</span></button>
+      <button class="nb"        id="nav-monitor"   onclick="gv('monitor')">🛫 <span class="nl">Monitor</span></button>
+      <button class="nb"        id="nav-guide"     onclick="gv('guide')">🌍 <span class="nl">Destinos</span></button>
+      <button class="nb"        id="nav-trip"      onclick="gv('trip')">🗺 <span class="nl">Plano de Voo</span></button>
+      <button class="nb"        id="nav-favorites" onclick="gv('favorites')">⭐ <span class="nl">Favoritos</span></button>
+      <button class="nb"        id="nav-settings"  onclick="gv('settings')">⚙ <span class="nl">Conta</span></button>
+    </div>
+    <div class="tright">
+      <div class="uchip">Olá, <b id="uname">—</b></div>
+      <button class="btn bg bsm" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+
+  <!-- TRAVEL ALERT BAR -->
+  <div id="tab">
+    <span class="tab-icon">✈️</span>
+    <span class="tab-text" id="tab-text">A viajar...</span>
+    <span class="tab-dest" id="tab-dest"></span>
+    <span class="tab-cd" id="tab-cd">—</span>
+    <button class="notif-btn" id="notif-topbar-btn" onclick="toggleNotifUI()">🔔 Notificar</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ════ VIEW: MARKET ════ -->
+    <div class="view active" id="view-market">
+      <div class="ph">
+        <div>
+          <div class="pht">Foreign <span>Stocks</span></div>
+          <div class="phs">YATA crowd-sourced + Torn API · Preços e lucros calculados</div>
+        </div>
+        <div class="cb" style="margin-bottom:0">
+          <input id="ms" class="ci sw" placeholder="🔍 Pesquisar produto..." oninput="renderMarket()">
+          <select id="mc" class="cs" onchange="renderMarket()"><option value="">Todas as categorias</option></select>
+          <select id="mo" class="cs" onchange="renderMarket()">
+            <option value="cost_asc">Preço ↑</option>
+            <option value="cost_desc">Preço ↓</option>
+            <option value="profit_desc">Lucro ↓</option>
+            <option value="qty_desc">Stock ↓</option>
+            <option value="name_asc">Nome A–Z</option>
+          </select>
+          <button id="rfbtn" class="rfbtn" onclick="loadData()">
+            <span id="rsp" class="spin">↻</span> Atualizar
+          </button>
+        </div>
+      </div>
+      <div class="dtabs" id="dtabs"></div>
+      <div class="sbar"><span id="sdot" class="dot dy"></span><span id="stxt">A aguardar...</span></div>
+      <div id="marea"></div>
+    </div>
+
+    <!-- ════ VIEW: MONITOR ════ -->
+    <div class="view" id="view-monitor">
+      <div class="ph">
+        <div>
+          <div class="pht">🛫 <span>Monitor de Viagem</span></div>
+          <div class="phs">Estado em tempo real · Auto-poll a cada 30s · Notificação 3min antes de chegar</div>
+        </div>
+        <button class="rfbtn" onclick="pollNow()">
+          <span id="psp" class="spin">↻</span> Atualizar agora
+        </button>
+      </div>
+
+      <div class="tgrid">
+        <!-- STATUS CARD -->
+        <div class="panel">
+          <div class="ptitle">Estado de viagem</div>
+          <div class="ts-state">
+            <div class="ts-bigdot tsd-home" id="bigdot"></div>
+            <div>
+              <div class="ts-lbl" id="ts-lbl">Em casa</div>
+              <div class="ts-sub" id="ts-sub">Sem viagem ativa</div>
+            </div>
+          </div>
+          <div class="ts-cd hidden" id="ts-cd">00:00:00</div>
+          <div class="ts-bw hidden" id="ts-bw"><div class="ts-bar" id="ts-bar" style="width:0%"></div></div>
+          <div id="ts-rows"></div>
+          <!-- Notification toggle -->
+          <div class="ntog">
+            <label class="sw-wrap">
+              <input type="checkbox" id="ntog-chk" onchange="handleNotifChk()">
+              <div class="sw-track"></div>
+              <div class="sw-thumb"></div>
+            </label>
+            <span class="nlbl" id="ntog-lbl">Notificar 3 min antes de chegar</span>
+          </div>
+        </div>
+
+        <!-- PEOPLE CARD -->
+        <div class="panel">
+          <div class="ptitle" id="people-title">Jogadores no destino</div>
+          <div id="people-area">
+            <div class="empty"><div class="ei">👥</div><p>Aguardar estado de viagem...</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POLL LOG -->
+      <div class="panel">
+        <div class="ptitle">Log de polling (auto: 30s enquanto viajando)</div>
+        <div class="plog" id="plog"></div>
+      </div>
+    </div>
+
+    <!-- ════ VIEW: GUIDE ════ -->
+    <div class="view" id="view-guide">
+      <div class="ph">
+        <div>
+          <div class="pht">🌍 <span>Guia de Destinos</span></div>
+          <div class="phs">Extras exclusivos · Tempos de voo · Nível de segurança · Dicas</div>
+        </div>
+      </div>
+      <div class="dgrid" id="dgrid"></div>
+    </div>
+
+    <!-- ════ VIEW: TRIP ════ -->
+    <div class="view" id="view-trip">
+      <div class="ph">
+        <div>
+          <div class="pht">🗺 <span>Plano de Voo</span></div>
+          <div class="phs">Gera um plano completo com análise de risco e timeline</div>
+        </div>
+      </div>
+
+      <div class="tbuild">
+        <div class="ptitle">Configurar viagem</div>
+        <div class="tbform">
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Destino</label>
+            <select id="tp-dest" class="cs" style="width:100%">
+              <option value="">-- Escolher destino --</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Tipo de voo</label>
+            <select id="tp-flight" class="cs" style="width:100%">
+              <option value="standard">Standard</option>
+              <option value="airstrip">Airstrip (ilha)</option>
+              <option value="wlt">WLT Benefit</option>
+              <option value="business">Business Class</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Objetivo principal</label>
+            <select id="tp-goal" class="cs" style="width:100%">
+              <option value="items">🛒 Comprar items</option>
+              <option value="rehab">💊 Reabilitação (Suíça)</option>
+              <option value="bank">🏦 Banco Offshore (Cayman)</option>
+              <option value="fortune">🔮 Leitora da Fortuna (China)</option>
+              <option value="hunt">🦁 Caça (África do Sul)</option>
+            </select>
+          </div>
+        </div>
+        <div class="tbacts">
+          <button class="btn bp" style="width:auto" onclick="buildTrip()">⚡ Gerar plano de viagem</button>
+          <button class="btn bg bsm" onclick="clearTrip()">✕ Limpar</button>
+        </div>
+      </div>
+
+      <div id="trip-result" class="hidden"></div>
+
+      <!-- Summary panels -->
+      <div class="pcols" style="margin-top:1rem">
+        <div class="panel"><div class="ptitle">Resumo rápido por destino</div><div id="plan-dests"></div></div>
+        <div class="panel"><div class="ptitle">Top 15 — mais baratos com stock</div><div id="plan-top"></div></div>
+      </div>
+    </div>
+
+    <!-- ════ VIEW: FAVORITES ════ -->
+    <div class="view" id="view-favorites">
+      <div class="ph">
+        <div>
+          <div class="pht">⭐ <span>Favoritos</span></div>
+          <div class="phs">Produtos marcados para acompanhar</div>
+        </div>
+        <input id="fs" class="ci sw" placeholder="🔍 Filtrar favoritos..." oninput="renderFavs()">
+      </div>
+      <div id="farea"></div>
+    </div>
+
+    <!-- ════ VIEW: SETTINGS ════ -->
+    <div class="view" id="view-settings">
+      <div class="ph"><div><div class="pht">⚙ <span>Conta</span></div></div></div>
+
+      <div class="ssec">
+        <div class="ptitle">Conta atual</div>
+        <div class="skv">
+          <div><div class="sklbl" id="s-name">—</div><div class="skdsc">Nome no Torn</div></div>
+        </div>
+        <label class="fl">API Key ativa</label>
+        <div id="s-key" class="kd">—</div>
+      </div>
+
+      <div class="ssec">
+        <div class="ptitle">Contas guardadas</div>
+        <div id="s-saved"></div><br>
+        <button class="btn bd bsm" onclick="clearAllAccts()">🗑 Apagar todas as contas</button>
+      </div>
+
+      <div class="ssec">
+        <div class="ptitle">Cache de dados</div>
+        <div class="skv">
+          <div><div class="sklbl">Limpar cache de stocks</div>
+            <div class="skdsc">Força re-download YATA + Torn API</div></div>
+          <button class="btn bd bsm" onclick="clearCache()">Limpar</button>
+        </div>
+        <div class="skv">
+          <div><div class="sklbl">Limpar favoritos</div></div>
+          <button class="btn bd bsm" onclick="clearFavsAll()">Limpar</button>
+        </div>
+      </div>
+
+      <div class="ssec" style="max-width:600px">
+        <div class="ptitle">Fontes de dados</div>
+        <p style="font-size:.77rem;color:var(--muted2);line-height:1.8">
+          <b style="color:var(--text)">Stocks estrangeiros:</b>
+          YATA API <code style="font-family:var(--M);font-size:.68rem;background:var(--bg3);padding:1px 5px;border-radius:3px">yata.yt/api/v1/travel/export/</code>
+          — dados crowd-sourced, sem key necessária.<br>
+          <b style="color:var(--text)">Items e preços de mercado:</b>
+          Torn API <code style="font-family:var(--M);font-size:.68rem;background:var(--bg3);padding:1px 5px;border-radius:3px">torn/items</code> — dados oficiais.<br>
+          <b style="color:var(--text)">Estado de viagem:</b>
+          Torn API <code style="font-family:var(--M);font-size:.68rem;background:var(--bg3);padding:1px 5px;border-radius:3px">user?selections=travel,basic</code>
+          — requer Full Access.<br>
+          <b style="color:var(--text)">Jogadores no destino:</b>
+          Torn API v2 <code style="font-family:var(--M);font-size:.68rem;background:var(--bg3);padding:1px 5px;border-radius:3px">v2/user/abroad</code>
+          — Full Access · apenas perfis públicos (máx ~50).
+        </p>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /page-app -->
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════════ */
+const YATA_URL    = 'https://yata.yt/api/v1/travel/export/';
+const T_ITEMS     = k => `https://api.torn.com/torn/?selections=items&key=${k}`;
+const T_USER_BASIC= k => `https://api.torn.com/user/?selections=basic&key=${k}`;
+const T_TRAVEL    = k => `https://api.torn.com/user/?selections=travel,basic&key=${k}&timestamp=${Date.now()}`;
+const T_ABROAD    = (c,k) => `https://api.torn.com/v2/user/abroad?country=${c}&key=${k}`;
+
+const CTRY = {
+  mex:{ name:'México',         city:'Ciudad Juárez',  flag:'🇲🇽',
+        ft:{standard:26,airstrip:18,wlt:13,business:8},   cost:6500,  extras:[],
+        safety:'med', muggers:'moderados',
+        tips:'Plushies e Flowers baratos. Ótimo destino de iniciação. Muggers ocasionais.'},
+  cay:{ name:'Cayman Islands', city:'George Town',    flag:'🇰🇾',
+        ft:{standard:35,airstrip:25,wlt:18,business:11},  cost:10000, extras:['bank'],
+        safety:'danger', muggers:'muito frequentes',
+        tips:'Banco Offshore ilimitado com 0.5%/mês. PERIGO: muggers ativos quando depositas/levantas. Nunca fiques offline aqui com dinheiro.'},
+  can:{ name:'Canadá',         city:'Toronto',        flag:'🇨🇦',
+        ft:{standard:41,airstrip:29,wlt:20,business:12},  cost:9000,  extras:[],
+        safety:'med', muggers:'moderados',
+        tips:'Variedade equilibrada. Flowers de boa qualidade. Razoavelmente seguro.'},
+  haw:{ name:'Havai',          city:'Honolulu',       flag:'🇺🇸',
+        ft:{standard:134,airstrip:94,wlt:67,business:40}, cost:11000, extras:['suitcase'],
+        safety:'med', muggers:'moderados',
+        tips:'Suitcases disponíveis (aumentam capacidade de transporte). Voo longo — usa Business Class.'},
+  uni:{ name:'Reino Unido',    city:'Londres',        flag:'🇬🇧',
+        ft:{standard:159,airstrip:111,wlt:80,business:48},cost:18000, extras:[],
+        safety:'med', muggers:'moderados',
+        tips:'Grande variedade de Plushies raros. Voo muito longo — planeia bem.'},
+  arg:{ name:'Argentina',      city:'Buenos Aires',   flag:'🇦🇷',
+        ft:{standard:167,airstrip:117,wlt:83,business:50},cost:21000, extras:[],
+        safety:'med', muggers:'moderados',
+        tips:'Items exclusivos e de alto valor. Um dos melhores para lucros no mercado.'},
+  swi:{ name:'Suíça',          city:'Zurique',        flag:'🇨🇭',
+        ft:{standard:175,airstrip:123,wlt:88,business:53},cost:27000, extras:['rehab'],
+        safety:'safe', muggers:'raros',
+        tips:'Centro de Reabilitação: elimina vício a drogas e enche a felicidade ao máximo. Ideal antes de gym. Muito seguro.'},
+  jap:{ name:'Japão',          city:'Tóquio',         flag:'🇯🇵',
+        ft:{standard:225,airstrip:158,wlt:113,business:68},cost:32000,extras:[],
+        safety:'med', muggers:'moderados',
+        tips:'Plushies raros e exclusivos de alto valor. Voo muito longo — maximiza os slots de transporte.'},
+  chi:{ name:'China',          city:'Pequim',         flag:'🇨🇳',
+        ft:{standard:242,airstrip:169,wlt:121,business:72},cost:35000,extras:['fortune'],
+        safety:'med', muggers:'moderados',
+        tips:'Leitora da Fortuna ($75.000): mostra a % de progresso até ao próximo nível. Essencial para level holders.'},
+  uae:{ name:'Dubai (UAE)',    city:'Dubai',          flag:'🇦🇪',
+        ft:{standard:271,airstrip:190,wlt:135,business:81},cost:32000,extras:[],
+        safety:'med', muggers:'moderados',
+        tips:'Items de luxo e contraband exclusivo. Muito lucrativo no mercado. Voo longo.'},
+  sou:{ name:'África do Sul',  city:'Joanesburgo',    flag:'🇿🇦',
+        ft:{standard:297,airstrip:208,wlt:149,business:89},cost:40000,extras:['hunt'],
+        safety:'med', muggers:'moderados',
+        tips:'Caça de animais selvagens: ganha cash, XP e honors raros. Usa energia. O voo mais longo do jogo.'},
+};
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+let S = {
+  user:null, stocks:{}, items:{}, yataTs:0,
+  favs:[], activeDest:'all', loaded:false, loading:false,
+  tdata:null, pollTimer:null,
+  notifOn:false, n3done:false, n1done:false,
+  cdTimer:null,
+};
+
+/* ═══════════════════════════════════════════════
+   STORAGE
+═══════════════════════════════════════════════ */
+const LS={
+  g:k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}},
+  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
+  d:k=>localStorage.removeItem(k)
+};
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+function init(){
+  S.favs = LS.g('tf_favs')||[];
+  S.notifOn = LS.g('tf_notif')||false;
+  renderSavedLogin();
+  const last = LS.g('tf_lastuser');
+  if(last) loginAs(last, false);
+}
+
+/* ═══════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════ */
+async function doLogin(){
+  const name = G('in-name').value.trim();
+  const key  = G('in-key').value.trim();
+  const err  = G('lerr');
+  err.classList.add('hidden');
+  if(!name){ showErr(err,'Escreve um nome.'); return; }
+  if(!key||key.length<10){ showErr(err,'API Key inválida (16 caract.).'); return; }
+  setBtn('btn-login','⏳ A verificar…',true);
+  try{
+    const r = await fetch(T_USER_BASIC(key));
+    const d = await r.json();
+    if(d.error){ showErr(err,`Torn [${d.error.code}]: ${d.error.error}`); return; }
+    const acct = {name, tornName:d.name||name, apiKey:key, tornId:d.player_id};
+    upsertAcct(acct);
+    loginAs(acct, true);
+  }catch(e){ showErr(err,'Erro de rede.'); }
+  finally{ setBtn('btn-login','→ Entrar',false); }
+}
+
+function loginAs(acct, fresh){
+  S.user = acct;
+  S.favs = LS.g('tf_favs')||[];
+  LS.s('tf_lastuser', acct);
+  G('page-login').style.display = 'none';
+  G('page-app').style.display   = 'flex';
+  G('uname').textContent        = acct.tornName||acct.name;
+  G('s-name').textContent       = acct.tornName||acct.name;
+  G('s-key').textContent        = maskKey(acct.apiKey);
+  G('ntog-chk').checked         = S.notifOn;
+  G('notif-topbar-btn').className = 'notif-btn'+(S.notifOn?' on':'');
+  buildDestTabs();
+  buildGuide();
+  buildTripDests();
+  renderSettingsAccts();
+
+  const cs = LS.g('tf_stocks'), ci = LS.g('tf_items');
+  if(cs && ci && !fresh){
+    S.stocks=cs.data; S.yataTs=cs.ts; S.items=ci; S.loaded=true;
+    updateCounts(); buildCatFilter();
+    setStatus('dy','Cache local · '+timeAgo(cs.ts*1000)+' · clica Atualizar');
+    renderMarket(); renderPlanner();
+  } else { loadData(); }
+
+  startPoll();
+}
+
+function doLogout(){
+  S.user=null; S.loaded=false;
+  clearInterval(S.pollTimer); clearInterval(S.cdTimer);
+  LS.d('tf_lastuser');
+  G('page-app').style.display  = 'none';
+  G('page-login').style.display= 'flex';
+  G('in-key').value=''; G('in-name').value='';
+}
+
+function upsertAcct(a){
+  const arr=LS.g('tf_accts')||[];
+  const i=arr.findIndex(x=>x.apiKey===a.apiKey);
+  if(i>=0)arr[i]=a; else arr.push(a);
+  LS.s('tf_accts',arr);
+  renderSavedLogin();
+}
+function delAcct(i){
+  const arr=LS.g('tf_accts')||[];
+  arr.splice(i,1); LS.s('tf_accts',arr);
+  renderSavedLogin(); renderSettingsAccts();
+}
+function clearAllAccts(){
+  if(!confirm('Apagar todas as contas guardadas?'))return;
+  LS.s('tf_accts',[]); renderSavedLogin(); renderSettingsAccts();
+  toast('Contas apagadas','ok');
+}
+function renderSavedLogin(){
+  const arr=LS.g('tf_accts')||[];
+  G('saved-sec').style.display = arr.length?'':'none';
+  G('saved-list').innerHTML = arr.map((a,i)=>`
+    <div class="arow" onclick="loginAs(${j(a)},false)">
+      <div><div class="ar-name">${e(a.tornName||a.name)}</div><div class="ar-key">${maskKey(a.apiKey)}</div></div>
+      <button class="adel" onclick="event.stopPropagation();delAcct(${i})">✕</button>
+    </div>`).join('');
+}
+function renderSettingsAccts(){
+  const arr=LS.g('tf_accts')||[];
+  G('s-saved').innerHTML = arr.length
+    ? arr.map((a,i)=>`
+      <div class="arow" style="cursor:default">
+        <div><div class="ar-name">${e(a.tornName||a.name)}</div><div class="ar-key">${maskKey(a.apiKey)}</div></div>
+        <button class="adel" onclick="delAcct(${i});renderSettingsAccts()">✕</button>
+      </div>`).join('')
+    : '<p style="font-size:.77rem;color:var(--muted)">Nenhuma conta guardada.</p>';
+}
+
+/* ═══════════════════════════════════════════════
+   DATA LOADING
+═══════════════════════════════════════════════ */
+async function loadData(){
+  if(S.loading||!S.user)return;
+  S.loading=true;
+  G('rfbtn').disabled=true;
+  G('rsp').classList.add('spinning');
+  setStatus('dy','A carregar stocks YATA…');
+  showSkel();
+  try{
+    /* 1 — YATA stocks */
+    const yr = await fetch(YATA_URL);
+    if(!yr.ok) throw new Error(`YATA HTTP ${yr.status}`);
+    const yd = await yr.json();
+    if(!yd.stocks) throw new Error('YATA: formato inesperado');
+    S.stocks=yd.stocks; S.yataTs=yd.timestamp;
+    LS.s('tf_stocks',{data:yd.stocks,ts:yd.timestamp});
+    setStatus('dy','Stocks OK · A carregar items Torn API…');
+
+    /* 2 — Torn items */
+    const tr = await fetch(T_ITEMS(S.user.apiKey));
+    const td = await tr.json();
+    if(td.error) throw new Error(`Torn [${td.error.code}]: ${td.error.error}`);
+    S.items={};
+    Object.entries(td.items||{}).forEach(([id,it])=>{
+      S.items[id]={name:it.name,type:it.type,mv:it.market_value||0};
+    });
+    LS.s('tf_items',S.items);
+    S.loaded=true;
+    updateCounts(); buildCatFilter();
+    const tot=Object.values(S.stocks).reduce((n,c)=>n+(c.stocks||[]).length,0);
+    setStatus('dg',`${tot} produtos · ${Object.keys(S.stocks).length} destinos · YATA: ${timeAgo(S.yataTs*1000)}`);
+    renderMarket(); renderPlanner();
+    toast('Dados atualizados ✓','ok');
+  }catch(ex){
+    console.error(ex);
+    setStatus('dr',`Erro: ${ex.message}`);
+    G('marea').innerHTML=errState(ex.message);
+    toast('Erro ao carregar','err');
+  }finally{
+    S.loading=false; G('rfbtn').disabled=false; G('rsp').classList.remove('spinning');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   TRAVEL MONITOR
+═══════════════════════════════════════════════ */
+function startPoll(){
+  pollNow();
+  clearInterval(S.pollTimer);
+  S.pollTimer = setInterval(()=>{
+    const st = S.tdata?.status?.state;
+    if(!S.tdata || st==='Traveling' || st==='Abroad') pollNow();
+  }, 30000);
+}
+
+async function pollNow(){
+  if(!S.user)return;
+  G('psp').classList.add('spinning');
+  try{
+    const r = await fetch(T_TRAVEL(S.user.apiKey));
+    const d = await r.json();
+    if(d.error){ logPoll(`❌ API: ${d.error.error}`,'err'); return; }
+    S.tdata = d;
+    applyTravelUI(d);
+    logPoll(`✓ ${hhmm()} — ${d.status?.state||'?'}`,'ok');
+  }catch(ex){ logPoll(`⚠ Rede: ${ex.message}`,'err'); }
+  finally{ G('psp').classList.remove('spinning'); }
+}
+
+function applyTravelUI(d){
+  const state   = d.status?.state||'Okay';
+  const travel  = d.travel||{};
+  const bigdot  = G('bigdot');
+  const lbl     = G('ts-lbl');
+  const sub     = G('ts-sub');
+  const cdEl    = G('ts-cd');
+  const bwEl    = G('ts-bw');
+  const rowsEl  = G('ts-rows');
+  const tabBar  = G('tab');
+
+  if(state==='Traveling'){
+    const dest     = travel.destination||'';
+    const timeLeft = travel.time_left||0;
+    const departed = travel.departed||0;
+    const arrived  = travel.timestamp||0;
+    const total    = arrived>0?arrived-departed:0;
+
+    bigdot.className = 'ts-bigdot tsd-traveling';
+    lbl.textContent  = `A voar para ${cname(dest)}`;
+    sub.textContent  = `Saiu: ${fmtTs(departed*1000)}`;
+    cdEl.classList.remove('hidden');
+    bwEl.classList.remove('hidden');
+    startCountdown(timeLeft, total, cdEl);
+    rowsEl.innerHTML =
+      irow('Destino',   cflag(dest)+' '+cname(dest))+
+      irow('Partiu',    fmtTs(departed*1000))+
+      irow('Chegada est.', fmtTs(arrived*1000))+
+      irow('Resta',     fmtDur(timeLeft));
+    // Top bar
+    tabBar.classList.add('show');
+    G('tab-text').innerHTML = `A voar para <b>${cname(dest)}</b>`;
+    G('tab-dest').textContent = cflag(dest);
+    // Notifications
+    checkNotifs(timeLeft, dest);
+    // People
+    fetchPeople(dest);
+  }
+  else if(state==='Abroad'){
+    const dest = travel.destination||'';
+    bigdot.className = 'ts-bigdot tsd-abroad';
+    lbl.textContent  = `No estrangeiro`;
+    sub.textContent  = `${cflag(dest)} ${cname(dest)}`;
+    cdEl.classList.add('hidden');
+    bwEl.classList.add('hidden');
+    clearInterval(S.cdTimer);
+    rowsEl.innerHTML = irow('Localização', cflag(dest)+' '+cname(dest));
+    tabBar.classList.remove('show');
+    fetchPeople(dest);
+    // reset notif flags for next trip
+    S.n3done=false; S.n1done=false;
+  }
+  else {
+    bigdot.className = 'ts-bigdot tsd-home';
+    lbl.textContent  = 'Em casa (Torn City)';
+    sub.textContent  = 'Nenhuma viagem ativa.';
+    cdEl.classList.add('hidden');
+    bwEl.classList.add('hidden');
+    clearInterval(S.cdTimer);
+    rowsEl.innerHTML = irow('Estado','🏠 Em casa');
+    tabBar.classList.remove('show');
+    G('people-title').textContent = 'Jogadores no destino';
+    G('people-area').innerHTML = '<div class="empty"><div class="ei">🏠</div><p>Não estás a viajar.</p></div>';
+    S.n3done=false; S.n1done=false;
+  }
+}
+
+/* countdown */
+let _cdLeft=0, _cdTotal=0;
+function startCountdown(tl, total, cdEl){
+  clearInterval(S.cdTimer);
+  _cdLeft=tl; _cdTotal=total;
+  function tick(){
+    if(_cdLeft<0) _cdLeft=0;
+    cdEl.textContent = fmtDur(_cdLeft);
+    G('tab-cd').textContent = fmtDur(_cdLeft);
+    if(_cdTotal>0){
+      const pct = Math.max(0,Math.min(100,(1-_cdLeft/_cdTotal)*100));
+      G('ts-bar').style.width = pct+'%';
+    }
+    if(_cdLeft>0) _cdLeft--;
+  }
+  tick();
+  S.cdTimer = setInterval(tick, 1000);
+}
+
+/* notifications */
+function checkNotifs(tl, dest){
+  if(!S.notifOn) return;
+  if(tl<=180 && !S.n3done){
+    S.n3done=true;
+    sendNotif('✈ TornFlight — 3 minutos!',`A chegar a ${cname(dest)}! Prepara-te para comprar.`);
+    toast('🔔 Notificação: 3 min para chegar!','info');
+  }
+  if(tl<=60 && !S.n1done){
+    S.n1done=true;
+    sendNotif('✈ TornFlight — 1 minuto!',`Quase a chegar a ${cname(dest)}!`);
+  }
+  if(tl>300){ S.n3done=false; S.n1done=false; }
+}
+
+async function handleNotifChk(){
+  const on = G('ntog-chk').checked;
+  if(on){
+    if(!('Notification' in window)){ toast('Browser sem suporte a notificações','err'); G('ntog-chk').checked=false; return; }
+    const perm = await Notification.requestPermission();
+    if(perm==='granted'){
+      S.notifOn=true; LS.s('tf_notif',true);
+      G('ntog-lbl').textContent='✅ Notificações ativas';
+      G('notif-topbar-btn').className='notif-btn on';
+      toast('Notificações ativadas ✓','ok');
+    } else {
+      S.notifOn=false; G('ntog-chk').checked=false;
+      toast('Permissão negada pelo browser','err');
+    }
+  } else {
+    S.notifOn=false; LS.s('tf_notif',false);
+    G('ntog-lbl').textContent='Notificar 3 min antes de chegar';
+    G('notif-topbar-btn').className='notif-btn';
+  }
+}
+function toggleNotifUI(){ G('ntog-chk').click(); }
+
+function sendNotif(title,body){
+  if(!('Notification' in window)||Notification.permission!=='granted') return;
+  try{ new Notification(title,{body,icon:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>'}); }catch{}
+}
+
+/* people abroad */
+async function fetchPeople(countryCode){
+  if(!countryCode||!S.user)return;
+  const cc = countryCode.toLowerCase();
+  G('people-title').textContent = `Jogadores em ${cflag(cc)} ${cname(cc)}`;
+  G('people-area').innerHTML = '<div style="font-family:var(--M);font-size:.7rem;color:var(--muted);padding:.5rem 0">A carregar jogadores…</div>';
+  try{
+    const r = await fetch(T_ABROAD(cc, S.user.apiKey));
+    const d = await r.json();
+    if(d.error){
+      G('people-area').innerHTML=`<div class="empty"><div class="ei">🔒</div>
+        <p>Sem acesso à lista de jogadores.<br>
+        <small>Requer <b>Full Access</b> API Key.<br>Erro ${d.error.code}: ${e(d.error.error)}</small></p></div>`;
+      return;
+    }
+    const users = d.users||d.abroad||[];
+    if(!users.length){
+      G('people-area').innerHTML='<div class="empty"><div class="ei">👤</div><p>Nenhum jogador visível.<br><small>Jogadores de Theater 10★ ficam ocultos.</small></p></div>';
+      return;
+    }
+    const rows = users.slice(0,30).map(u=>`
+      <div class="prow">
+        <div class="pleft">
+          <div class="avt">${u.name?u.name[0].toUpperCase():'?'}</div>
+          <div>
+            <div class="pname">
+              <a href="https://www.torn.com/profiles.php?XID=${u.id}" target="_blank"
+                 style="color:inherit;text-decoration:none">${e(u.name||'Desconhecido')}</a>
+              <span style="color:var(--muted);font-size:.68rem"> [${u.id||'?'}]</span>
+            </div>
+            <div class="pmeta">Nível ${u.level||'?'} · ${e(u.faction?.name||'Sem facção')}</div>
+          </div>
+        </div>
+        <span class="pbadge">Abroad</span>
+      </div>`).join('');
+    G('people-area').innerHTML = rows+`<p style="font-size:.63rem;color:var(--muted);margin-top:.6rem;font-family:var(--M)">${users.length} jogador${users.length!==1?'es':''} · só perfis públicos</p>`;
+  }catch(ex){
+    G('people-area').innerHTML=`<div class="empty"><div class="ei">⚠️</div><p>Erro ao carregar.<br><code>${e(ex.message)}</code></p></div>`;
+  }
+}
+
+/* poll log */
+function logPoll(msg, cls=''){
+  const el2=G('plog');
+  const div=document.createElement('div');
+  div.className='plog-line plog-'+cls;
+  div.textContent=msg;
+  el2.insertBefore(div, el2.firstChild);
+  while(el2.children.length>20) el2.removeChild(el2.lastChild);
+}
+function irow(l,v){ return `<div class="irow"><span class="il">${l}</span><span class="iv">${v}</span></div>`; }
+
+/* ═══════════════════════════════════════════════
+   DESTINATION GUIDE
+═══════════════════════════════════════════════ */
+function buildGuide(){
+  const XMAP = {
+    bank:    '<span class="xb x-bank">🏦 Banco Offshore</span>',
+    rehab:   '<span class="xb x-rehab">💊 Reabilitação</span>',
+    fortune: '<span class="xb x-fortune">🔮 Leitora da Fortuna</span>',
+    hunt:    '<span class="xb x-hunt">🦁 Caça de Animais</span>',
+    suitcase:'<span class="xb x-bank">🧳 Suitcases à venda</span>',
+  };
+  const SMAP = {
+    safe:  '<span class="xb x-safe">✅ Relativamente seguro</span>',
+    med:   '<span class="xb x-warn">⚠ Cuidado normal</span>',
+    danger:'<span class="xb x-danger">🚨 Muggers frequentes</span>',
+  };
+  G('dgrid').innerHTML = Object.entries(CTRY).map(([code,c])=>`
+    <div class="dgc">
+      <div class="dgch">
+        <span class="dgcf">${c.flag}</span>
+        <div><div class="dgct">${c.name}</div><div class="dgcity">${c.city}</div></div>
+      </div>
+      <div class="dgb">
+        <div class="dgs">
+          <div class="dgsl">Tempos de voo</div>
+          <div class="frow"><span class="flb">Standard</span><span class="fvl">${fmtMin(c.ft.standard)}</span></div>
+          <div class="frow"><span class="flb">Airstrip</span><span class="fvl">${fmtMin(c.ft.airstrip)}</span></div>
+          <div class="frow"><span class="flb">WLT</span><span class="fvl">${fmtMin(c.ft.wlt)}</span></div>
+          <div class="frow"><span class="flb">Business</span><span class="fvl"><b>${fmtMin(c.ft.business)}</b></span></div>
+          <div class="frow"><span class="flb">Custo ida</span><span class="fvl">$${fmtN(c.cost)}</span></div>
+        </div>
+        ${c.extras.length?`<div class="dgs"><div class="dgsl">Extras exclusivos</div><div class="extras">${c.extras.map(x=>XMAP[x]||'').join('')}</div></div>`:''}
+        <div class="dgs"><div class="dgsl">Segurança</div><div class="extras">${SMAP[c.safety]||''}</div></div>
+        <div class="dgs">
+          <div class="dgsl">Dica</div>
+          <p style="font-size:.71rem;color:var(--muted2);line-height:1.65">${e(c.tips)}</p>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   TRIP PLANNER
+═══════════════════════════════════════════════ */
+function buildTripDests(){
+  G('tp-dest').innerHTML = '<option value="">-- Escolher destino --</option>'+
+    Object.entries(CTRY).map(([code,c])=>`<option value="${code}">${c.flag} ${c.name}</option>`).join('');
+}
+
+function buildTrip(){
+  const code   = G('tp-dest').value;
+  const flight = G('tp-flight').value;
+  const goal   = G('tp-goal').value;
+  if(!code){ toast('Escolhe um destino','err'); return; }
+
+  const c    = CTRY[code];
+  const tmin = c.ft[flight]||c.ft.standard;
+
+  /* Goal info */
+  const GOALS = {
+    items:   {icon:'🛒',title:'Comprar items',
+              desc:'Compra items estrangeiros e vende em Torn City. Verifica o separador Mercado para ver o que está disponível e calcular lucros.'},
+    rehab:   {icon:'💊',title:'Reabilitação',
+              desc:'O Centro de Reabilitação na Suíça elimina vícios a drogas e enche a barra de Felicidade ao máximo. Essencial para gym.'},
+    bank:    {icon:'🏦',title:'Banco Offshore',
+              desc:'Deposita dinheiro ilimitado no Cayman National Bank. Juros: 0.5%/mês no saldo mínimo do mês.'},
+    fortune: {icon:'🔮',title:'Leitora da Fortuna',
+              desc:'A leitora em Pequim revela a % do teu progresso até ao próximo nível. Custo: $75.000.'},
+    hunt:    {icon:'🦁',title:'Caça de Animais',
+              desc:'Usa energia para caçar animais selvagens na África do Sul. Ganhas cash, XP e honors exclusivos.'},
+  };
+  const gi = GOALS[goal]||GOALS.items;
+
+  /* Items disponíveis */
+  const destProds = S.loaded?(S.stocks[code]?.stocks||[])
+    .map(s=>({...s,info:S.items[s.id]||{}}))
+    .filter(s=>s.quantity>0)
+    .sort((a,b)=>a.cost-b.cost).slice(0,5):[];
+
+  /* Risk analysis */
+  const warns=[];
+  const checks=[
+    [code==='cay','danger','🚨 Cayman tem muggers muito frequentes! Deposita rápido e regressa imediatamente.'],
+    [code==='cay'&&goal!=='bank','warn','⚠ O Banco Offshore só é útil nas Cayman Islands.'],
+    [code!=='swi'&&goal==='rehab','warn','⚠ Reabilitação só está disponível na Suíça.'],
+    [code!=='chi'&&goal==='fortune','warn','⚠ Leitora da Fortuna só está disponível na China.'],
+    [code!=='sou'&&goal==='hunt','warn','⚠ Caça de animais só está disponível na África do Sul.'],
+    [code==='swi'&&goal==='rehab','safe','✅ Destino correto para Reabilitação. Suíça é segura.'],
+    [code==='cay'&&goal==='bank','safe','✅ Destino correto para Banco Offshore.'],
+    [code==='chi'&&goal==='fortune','safe','✅ Destino correto para a Leitora da Fortuna.'],
+    [code==='sou'&&goal==='hunt','safe','✅ Destino correto para Caça de Animais.'],
+    [tmin>=200,'warn',`⚠ Voo muito longo (${fmtMin(tmin)}) — certifica-te que tens espaço de inventário e objetivos suficientes.`],
+    [tmin<30,'safe',`✅ Voo curto (${fmtMin(tmin)}) — viagem rápida e eficiente.`],
+    [goal==='items'&&destProds.length===0&&S.loaded,'warn','⚠ Sem stock carregado para este destino. Atualiza o Mercado primeiro.'],
+    [goal==='items'&&destProds.length>0,'safe',`✅ ${destProds.length} produtos com stock disponíveis.`],
+    [c.safety==='danger','danger','🚨 Destino de risco elevado. Não ficás offline neste destino com dinheiro em mão.'],
+  ];
+  checks.forEach(([cond,lvl,msg])=>{ if(cond) warns.push({lvl,msg}); });
+
+  const dangerCount = warns.filter(w=>w.lvl==='danger').length;
+  const warnCount   = warns.filter(w=>w.lvl==='warn').length;
+  const riskScore   = dangerCount*3+warnCount;
+  const riskLvl     = riskScore===0?'low':riskScore<=2?'med':'high';
+  const riskLabel   = riskScore===0?'Baixo 🟢':riskScore<=2?'Médio 🟡':'Alto 🔴';
+
+  /* Timeline steps */
+  const prodList = destProds.length
+    ? destProds.map(p=>`${e(p.info.name||'Item')} <b style="color:var(--accent)">$${fmtN(p.cost)}</b>`).join(', ')
+    : 'Carrega o Mercado para ver items disponíveis.';
+
+  const steps=[
+    {icon:'🏠',title:'Partida — Torn City',
+     sub:'Assegura dinheiro para o voo + itens. Verifica que não estás hospitalizado ou preso.',
+     badge:null},
+    {icon:'✈️',title:`Voo para ${c.name} (${flight})`,
+     sub:`Duração: ${fmtMin(tmin)} · Custo: $${fmtN(c.cost)} · Capacidade: 5 items (15 com airstrip/WLT/Business)`,
+     badge:{cls:'x-safe',txt:'✈ Invulnerável durante o voo'}},
+    {icon:'🛬',title:`Chegada em ${c.city}`,
+     sub:`Grace period de 15 segundos — nenhum jogador te pode atacar ao chegar.`,
+     badge:{cls:'x-safe',txt:'🛡 Grace period: 15s'}},
+    ...(goal==='items'?[{icon:'🛒',title:'Comprar items',
+     sub:`Itens disponíveis (com stock): ${prodList}`,
+     badge:null}]:[]),
+    ...(goal==='rehab'?[{icon:'💊',title:'Centro de Reabilitação — Zurique',
+     sub:'Elimina vícios a drogas. Enche a barra de Felicidade ao máximo. Custo varia com nível de vício.',
+     badge:{cls:'x-safe',txt:'💊 Felicidade 100%'}}]:[]),
+    ...(goal==='bank'?[{icon:'🏦',title:'Banco Offshore — George Town',
+     sub:'Deposita o mínimo de $100. Juros de 0.5%/mês sobre o saldo mínimo do mês. Não faças offline aqui!',
+     badge:{cls:'x-warn',txt:'⚠ Atenção a muggers!'}}]:[]),
+    ...(goal==='fortune'?[{icon:'🔮',title:'Leitora da Fortuna — Pequim',
+     sub:'Paga $75.000 para saber % de progresso até ao próximo nível. Kimshee só responde uma vez por visita.',
+     badge:{cls:'x-safe',txt:'🔮 $75.000'}}]:[]),
+    ...(goal==='hunt'?[{icon:'🦁',title:'Caça de Animais — Joanesburgo',
+     sub:'Usa energia para caçar. Cada caça consome energia e pode dar cash, XP e honors. Repete até esgotar energia.',
+     badge:{cls:'x-safe',txt:'🦁 Usa energia'}}]:[]),
+    {icon:'✈️',title:`Regresso a Torn City`,
+     sub:`Duração de regresso: ${fmtMin(tmin)} · Invulnerável durante todo o voo.`,
+     badge:{cls:'x-safe',txt:'✈ Invulnerável'}},
+    {icon:'🏠',title:'Chegou a casa!',
+     sub:`Vende os items no mercado local. Custo total da viagem: $${fmtN(c.cost*2)} (ida+volta). Tempo total: ${fmtMin(tmin*2)}.`,
+     badge:null},
+  ];
+
+  const html=`
+    <div class="tresult">
+      <div class="ptitle">${c.flag} ${c.name} — ${gi.icon} ${gi.title}</div>
+      <div class="riskrow">
+        <div class="riskbox"><div class="rl">Risco</div><div class="rv ${riskLvl}">${riskLabel}</div></div>
+        <div class="riskbox"><div class="rl">Tempo ida+volta</div><div class="rv">${fmtMin(tmin*2)}</div></div>
+        <div class="riskbox"><div class="rl">Custo total</div><div class="rv">$${fmtN(c.cost*2)}</div></div>
+        <div class="riskbox"><div class="rl">Flight type</div><div class="rv" style="text-transform:capitalize">${flight}</div></div>
+      </div>
+      <p style="font-size:.77rem;color:var(--muted2);line-height:1.65;margin-bottom:.9rem">${gi.desc}</p>
+      ${warns.length?`<div class="warnings">${warns.map(w=>`<div class="wline wl-${w.lvl}">${w.msg}</div>`).join('')}</div>`:''}
+      <div class="timeline">${steps.map(s=>`
+        <div class="tstep">
+          <div class="tsi">${s.icon}</div>
+          <div class="tsc">
+            <div class="tst">${s.title}</div>
+            <div class="tss">${s.sub}</div>
+            ${s.badge?`<div class="tsbadge ${s.badge.cls}">${s.badge.txt}</div>`:''}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+
+  G('trip-result').innerHTML=html;
+  G('trip-result').classList.remove('hidden');
+  G('trip-result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function clearTrip(){
+  G('trip-result').innerHTML='';
+  G('trip-result').classList.add('hidden');
+}
+
+/* ═══════════════════════════════════════════════
+   MARKET
+═══════════════════════════════════════════════ */
+function buildDestTabs(){
+  let html=`<button class="dtab active" id="tab-all" onclick="setDest('all')">🌍 Todos <span class="dc" id="cnt-all">—</span></button>`;
+  Object.entries(CTRY).forEach(([code,c])=>{
+    html+=`<button class="dtab" id="tab-${code}" onclick="setDest('${code}')">${c.flag}${c.name}<span class="dc" id="cnt-${code}">—</span></button>`;
+  });
+  G('dtabs').innerHTML=html;
+}
+function setDest(code){
+  S.activeDest=code;
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+  G('tab-'+code)?.classList.add('active');
+  renderMarket();
+}
+function updateCounts(){
+  let tot=0;
+  Object.keys(CTRY).forEach(code=>{
+    const n=(S.stocks[code]?.stocks||[]).length; tot+=n;
+    const el2=G('cnt-'+code); if(el2) el2.textContent=n;
+  });
+  const el2=G('cnt-all'); if(el2) el2.textContent=tot;
+}
+function buildCatFilter(){
+  const types=new Set();
+  Object.values(S.stocks).forEach(d=>(d.stocks||[]).forEach(s=>{
+    const inf=S.items[s.id]; if(inf?.type) types.add(inf.type);
+  }));
+  const sel=G('mc'); const cur=sel.value;
+  sel.innerHTML='<option value="">Todas as categorias</option>'+
+    [...types].sort().map(t=>`<option value="${t}"${t===cur?' selected':''}>${t}</option>`).join('');
+}
+
+function allProds(){
+  const list=[];
+  Object.entries(CTRY).forEach(([code,ci])=>{
+    const d=S.stocks[code]; if(!d)return;
+    (d.stocks||[]).forEach(s=>{
+      const inf=S.items[s.id]||{};
+      list.push({key:`${code}:${s.id}`,id:s.id,name:inf.name||s.name||`#${s.id}`,
+        type:inf.type||'—',cost:s.cost,qty:s.quantity,mv:inf.mv||0,
+        code,cname:ci.name,cflag:ci.flag,updatedAt:d.update*1000});
+    });
+  });
+  return list;
+}
+
+function renderMarket(){
+  if(!S.loaded){showSkel();return}
+  const search=G('ms').value.toLowerCase().trim();
+  const cat=G('mc').value;
+  const sort=G('mo').value;
+  let prods=allProds();
+  if(S.activeDest!=='all') prods=prods.filter(p=>p.code===S.activeDest);
+  if(search) prods=prods.filter(p=>p.name.toLowerCase().includes(search)||p.type.toLowerCase().includes(search));
+  if(cat)    prods=prods.filter(p=>p.type===cat);
+  switch(sort){
+    case 'cost_asc':    prods.sort((a,b)=>a.cost-b.cost); break;
+    case 'cost_desc':   prods.sort((a,b)=>b.cost-a.cost); break;
+    case 'profit_desc': prods.sort((a,b)=>(b.mv-b.cost)-(a.mv-a.cost)); break;
+    case 'qty_desc':    prods.sort((a,b)=>b.qty-a.qty); break;
+    case 'name_asc':    prods.sort((a,b)=>a.name.localeCompare(b.name)); break;
+  }
+  if(!prods.length){
+    G('marea').innerHTML=`<div class="empty"><div class="ei">📦</div><p>Nenhum produto encontrado${search?` para "<b>${e(search)}</b>"`:''}.<br>Tenta outros filtros ou clica Atualizar.</p></div>`;
+    return;
+  }
+  G('marea').innerHTML=`<div class="pgrid">${prods.map((p,i)=>pcard(p,i)).join('')}</div>`;
+}
+
+function pcard(p,i){
+  const isFav=S.favs.includes(p.key);
+  const profit=p.mv>0?p.mv-p.cost:0;
+  const pcls=profit>0?'pos':profit<0?'neg':'';
+  const pstr=profit!==0?`${profit>0?'+':''}$${fmtN(profit)} vs mercado`:'';
+  return `<div class="pc" style="animation-delay:${Math.min(i,20)*14}ms">
+    <div class="ptop">
+      <div class="pname">${e(p.name)}</div>
+      <button class="fbtn${isFav?' on':''}" onclick="toggleFav('${p.key}')" title="${isFav?'Remover':'Favoritar'}">
+        ${isFav?'⭐':'☆'}</button>
+    </div>
+    <div class="pprice">$${fmtN(p.cost)}</div>
+    ${p.mv>0?`<div class="pmkt">Mercado Torn: $${fmtN(p.mv)}</div>`:''}
+    ${pstr?`<div class="pprofit ${pcls}">${pstr}</div>`:''}
+    <div class="pills">
+      <span class="pill pb">${e(p.type)}</span>
+      ${p.qty>0?`<span class="pill pg">${fmtN(p.qty)} em stock</span>`:`<span class="pill pr">Sem stock</span>`}
+    </div>
+    <div class="pfoot">${p.cflag} ${e(p.cname)} · ↻ ${timeAgo(p.updatedAt)}</div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════
+   FAVORITES
+═══════════════════════════════════════════════ */
+function toggleFav(key){
+  const i=S.favs.indexOf(key);
+  if(i>=0){S.favs.splice(i,1);toast('Removido dos favoritos','info')}
+  else{S.favs.push(key);toast('⭐ Adicionado aos favoritos','ok')}
+  LS.s('tf_favs',S.favs);
+  if(G('view-market').classList.contains('active'))    renderMarket();
+  if(G('view-favorites').classList.contains('active')) renderFavs();
+}
+
+function renderFavs(){
+  if(!S.loaded){
+    G('farea').innerHTML='<div class="empty"><div class="ei">⚠️</div><p>Carrega dados no Mercado primeiro.</p></div>';
+    return;
+  }
+  if(!S.favs.length){
+    G('farea').innerHTML='<div class="empty"><div class="ei">⭐</div><p>Sem favoritos ainda.<br>Vai ao Mercado e clica no ☆.</p></div>';
+    return;
+  }
+  const search=G('fs').value.toLowerCase().trim();
+  let prods=allProds().filter(p=>S.favs.includes(p.key));
+  if(search) prods=prods.filter(p=>p.name.toLowerCase().includes(search)||p.cname.toLowerCase().includes(search));
+  if(!prods.length){
+    G('farea').innerHTML=`<div class="empty"><div class="ei">🔍</div><p>Sem favoritos para "${e(search)}".</p></div>`;
+    return;
+  }
+  G('farea').innerHTML=`<p class="sbar" style="margin-bottom:.85rem">${prods.length} produto${prods.length!==1?'s':''} favorito${prods.length!==1?'s':''}</p>
+    <div class="pgrid">${prods.map((p,i)=>pcard(p,i)).join('')}</div>`;
+}
+
+function clearFavsAll(){
+  if(!confirm('Limpar todos os favoritos?'))return;
+  S.favs=[]; LS.s('tf_favs',[]);
+  renderFavs(); toast('Favoritos limpos','ok');
+}
+
+/* ═══════════════════════════════════════════════
+   PLANNER (used in Trip tab)
+═══════════════════════════════════════════════ */
+function renderPlanner(){
+  if(!S.loaded){
+    G('plan-dests').innerHTML='<p style="font-size:.77rem;color:var(--muted)">Carrega dados no Mercado.</p>';
+    G('plan-top').innerHTML='';
+    return;
+  }
+  const rows=Object.entries(CTRY).map(([code,ci])=>{
+    const d=S.stocks[code]; if(!d||(d.stocks||[]).length===0)return null;
+    const sorted=[...d.stocks].sort((a,b)=>a.cost-b.cost);
+    return{code,ci,d,ch:sorted[0]};
+  }).filter(Boolean);
+
+  G('plan-dests').innerHTML=rows.length
+    ?rows.map(r=>`
+      <div class="dsr" onclick="gv('market');setDest('${r.code}')">
+        <div class="dsrl"><span class="dsrf">${r.ci.flag}</span>
+          <div><div class="dsrn">${r.ci.name}</div><div class="dsrc">${(r.d.stocks||[]).length} produtos</div></div></div>
+        <div class="dsrr"><div class="dsrp">desde $${fmtN(r.ch.cost)}</div><div class="dsra">↻ ${timeAgo(r.d.update*1000)}</div></div>
+      </div>`).join('')
+    :'<p style="font-size:.77rem;color:var(--muted)">Sem dados.</p>';
+
+  const top=allProds().filter(p=>p.qty>0).sort((a,b)=>a.cost-b.cost).slice(0,15);
+  G('plan-top').innerHTML=top.length
+    ?top.map((p,i)=>`
+      <div class="tir" onclick="gv('market');setDest('${p.code}');G('ms').value='${p.name.replace(/'/g,'').slice(0,20)}';renderMarket()">
+        <div class="tirl"><span class="tirrank">${i+1}</span>
+          <div><div class="tirn">${e(p.name)}</div><div class="tird">${p.cflag} ${e(p.cname)} · ${fmtN(p.qty)} stock</div></div></div>
+        <div class="tirp">$${fmtN(p.cost)}</div>
+      </div>`).join('')
+    :'<p style="font-size:.77rem;color:var(--muted)">Sem dados com stock.</p>';
+}
+
+/* ═══════════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════════ */
+function clearCache(){
+  LS.d('tf_stocks'); LS.d('tf_items');
+  S.stocks={}; S.items={}; S.loaded=false;
+  renderMarket();
+  toast('Cache limpo — clica Atualizar','info');
+}
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+function gv(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  G('view-'+name).classList.add('active');
+  G('nav-'+name).classList.add('active');
+  if(name==='favorites') renderFavs();
+  if(name==='trip')      renderPlanner();
+  if(name==='monitor')   pollNow();
+  if(name==='settings')  renderSettingsAccts();
+}
+
+/* ═══════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════ */
+const G  = id => document.getElementById(id);
+const e  = s  => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const j  = o  => JSON.stringify(o).replace(/"/g,'&quot;');
+const fmtN  = n => Number(n||0).toLocaleString('pt-PT');
+const maskKey=k => k&&k.length>8?k.slice(0,4)+'…'+k.slice(-4):'****';
+const fmtDur= s => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return `${pad(h)}:${pad(m)}:${pad(ss)}`; };
+const pad   = n => String(n||0).padStart(2,'0');
+const fmtTs = ts=> ts?new Date(ts).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}):'—';
+const hhmm  = () => new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const fmtMin= m => m>=60?`${Math.floor(m/60)}h ${m%60}m`:`${m}m`;
+const cname = c => CTRY[c?.toLowerCase()]?.name||c||'Desconhecido';
+const cflag = c => CTRY[c?.toLowerCase()]?.flag||'🌍';
+function timeAgo(ts){
+  if(!ts)return'—';
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return'agora';
+  const m=Math.floor(s/60);
+  if(m<60)return`${m}m atrás`;
+  const h=Math.floor(m/60);
+  if(h<24)return`${h}h atrás`;
+  return`${Math.floor(h/24)}d atrás`;
+}
+function setStatus(cls,txt){ G('sdot').className='dot '+cls; G('stxt').textContent=txt; }
+function showSkel(){ G('marea').innerHTML=`<div class="sgrid">${Array(8).fill('<div class="skel"></div>').join('')}</div>`; }
+function errState(msg){ return`<div class="empty"><div class="ei">⚠️</div><p>Erro: <code>${e(msg)}</code><br>Verifica API Key e ligação à internet.</p></div>`; }
+function showErr(el2,msg){ el2.textContent=msg; el2.classList.remove('hidden'); }
+function setBtn(id,t,d){ const b=G(id); if(b){b.textContent=t;b.disabled=d;} }
+let _tt;
+function toast(msg,type=''){
+  const t=G('toast'); t.textContent=msg; t.className='show '+type;
+  clearTimeout(_tt); _tt=setTimeout(()=>t.className='',2700);
+}
+
+/* BOOT */
+init();
+</script>
+</body>
+</html>
