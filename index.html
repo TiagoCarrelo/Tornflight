@@ -2,1450 +2,2112 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TornFlight — Travel Planner</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e8c547">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TornFlight">
+<meta name="description" content="Torn City Foreign Stock & Travel Planner">
+<link rel="manifest" href="manifest.json">
+<title>TornFlight</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ═══ RESET & VARS ═══ */
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS & RESET
+═══════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#08090c;--bg2:#0f1117;--bg3:#161b24;--card:#0d1018;
-  --border:#1e2535;--border2:#28364d;
-  --accent:#e8c547;--adim:rgba(232,197,71,.1);
+  --border:#1e2535;--b2:#28364d;
+  --accent:#e8c547;--adim:rgba(232,197,71,.1);--adim2:rgba(232,197,71,.06);
   --red:#f04a3a;--rdim:rgba(240,74,58,.09);
   --green:#34d07a;--gdim:rgba(52,208,122,.08);
   --blue:#4a9ef0;--bdim:rgba(74,158,240,.08);
   --purple:#a07af0;--pdim:rgba(160,122,240,.08);
   --orange:#f09030;
   --text:#c8d4e8;--muted:#4a5870;--muted2:#6a7a90;
-  --F:'Syne',sans-serif;--M:'Space Mono',monospace;
+  --F:"Syne",sans-serif;--M:"Space Mono",monospace;
+  --sb:env(safe-area-inset-bottom,0px);
+  --st:env(safe-area-inset-top,0px);
+  --radius:6px;
+  --transition:.15s ease;
 }
-html{scroll-behavior:smooth}
-body{font-family:var(--F);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:5px;height:5px}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{font-family:var(--F);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+img,svg{display:block;max-width:100%}
+button{font-family:var(--F)}
 .hidden{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
-/* ═══ LOGIN ═══ */
-#page-login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;
+/* ═══════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════ */
+#pLogin{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;
   background:radial-gradient(ellipse 70% 60% at 15% 60%,rgba(232,197,71,.05),transparent 70%),var(--bg)}
-.lbox{width:100%;max-width:430px;border:1px solid var(--border2);border-radius:6px;overflow:hidden;background:var(--card)}
-.lbanner{background:var(--accent);padding:1.7rem 2rem 1.3rem}
+.lbox{width:100%;max-width:420px;border:1px solid var(--b2);border-radius:8px;overflow:hidden;
+  background:var(--card);box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.lbanner{background:var(--accent);padding:1.8rem 2rem 1.4rem}
 .lbrand{font-family:var(--M);font-size:1.5rem;font-weight:700;color:#06080c;letter-spacing:-.04em}
 .lsub{font-size:.7rem;font-weight:700;color:rgba(6,8,12,.5);text-transform:uppercase;letter-spacing:.12em;margin-top:4px}
-.lbody{padding:1.7rem 2rem}
+.lbody{padding:1.8rem 2rem}
 .lbody h2{font-size:1rem;font-weight:700;color:#fff;margin-bottom:.3rem}
-.hint{font-size:.75rem;color:var(--muted2);margin-bottom:1.3rem;line-height:1.7}
+.hint{font-size:.74rem;color:var(--muted2);margin-bottom:1.3rem;line-height:1.7}
 .hint a{color:var(--accent);text-decoration:none}
-.fl{display:block;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px}
-.fi{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:4px;
-  padding:.58rem .9rem;color:var(--text);font-family:var(--F);font-size:.85rem;outline:none;transition:border-color .2s}
+
+/* Form elements */
+.fl{display:block;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;margin-top:.85rem}
+.fi{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.65rem .9rem;color:var(--text);font-family:var(--F);font-size:.85rem;outline:none;transition:border-color var(--transition)}
 .fi.mono{font-family:var(--M);font-size:.78rem}
 .fi:focus{border-color:var(--accent)}
 .fi::placeholder{color:var(--muted)}
-.fg{margin-bottom:.85rem}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:4px;
-  font-family:var(--M);font-size:.78rem;font-weight:700;cursor:pointer;transition:opacity .18s,transform .1s;
-  padding:.63rem 1.1rem;letter-spacing:.03em}
+select.fi{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a5870'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:2rem}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:var(--radius);
+  font-family:var(--M);font-size:.78rem;font-weight:700;cursor:pointer;transition:opacity var(--transition),transform .1s;
+  padding:.65rem 1.1rem;letter-spacing:.03em;-webkit-tap-highlight-color:transparent}
 .btn:active{transform:scale(.97)}
-.bp{background:var(--accent);color:#06080c;width:100%;margin-top:.3rem}
-.bp:hover{opacity:.87}
-.bp:disabled{opacity:.45;cursor:not-allowed}
-.bg{background:transparent;border:1px solid var(--border2);color:var(--muted2)}
-.bg:hover{border-color:var(--muted);color:var(--text)}
-.bd{background:transparent;border:1px solid rgba(240,74,58,.3);color:var(--red);font-size:.72rem}
-.bd:hover{background:var(--rdim)}
-.bsm{padding:.36rem .72rem;font-size:.72rem}
-.ebox{background:var(--rdim);border:1px solid rgba(240,74,58,.3);border-radius:4px;padding:.52rem .8rem;
-  font-size:.75rem;color:var(--red);margin-bottom:.9rem}
-.saved-hdr{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
+.bprimary{background:var(--accent);color:#06080c;width:100%;margin-top:.8rem}
+.bprimary:hover{opacity:.87}
+.bprimary:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.bghost{background:transparent;border:1px solid var(--b2);color:var(--muted2)}
+.bghost:hover{border-color:var(--muted);color:var(--text)}
+.bdanger{background:transparent;border:1px solid rgba(240,74,58,.3);color:var(--red)}
+.bdanger:hover{background:var(--rdim)}
+.bsm{padding:.38rem .75rem;font-size:.72rem}
+.bxsm{padding:.28rem .55rem;font-size:.65rem}
+
+/* Error box */
+.ebox{background:var(--rdim);border:1px solid rgba(240,74,58,.3);border-radius:4px;
+  padding:.52rem .8rem;font-size:.75rem;color:var(--red);margin-top:.8rem}
+
+/* Language toggle */
+.lang-row{display:flex;gap:6px;margin-bottom:1rem}
+.lbtn{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:5px 12px;
+  font-size:.72rem;font-family:var(--M);color:var(--muted);cursor:pointer;transition:all var(--transition);
+  -webkit-tap-highlight-color:transparent}
+.lbtn.on{background:var(--adim);border-color:var(--accent);color:var(--accent)}
+
+/* Saved accounts */
+.shdr{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
   padding-top:1.2rem;margin-top:1.2rem;border-top:1px solid var(--border);margin-bottom:.65rem}
 .arow{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);
-  border:1px solid var(--border);border-radius:4px;padding:.52rem .8rem;margin-bottom:.38rem;
-  cursor:pointer;transition:border-color .18s}
+  border:1px solid var(--border);border-radius:var(--radius);padding:.55rem .85rem;margin-bottom:.4rem;
+  cursor:pointer;transition:border-color var(--transition)}
 .arow:hover{border-color:var(--accent)}
-.ar-name{font-size:.83rem;font-weight:700;color:#fff}
-.ar-key{font-family:var(--M);font-size:.63rem;color:var(--muted)}
-.adel{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:2px 4px;transition:color .18s}
+.ar-n{font-size:.83rem;font-weight:700;color:#fff}
+.ar-k{font-family:var(--M);font-size:.62rem;color:var(--muted)}
+.adel{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;
+  padding:3px 5px;transition:color var(--transition);flex-shrink:0}
 .adel:hover{color:var(--red)}
 
-/* ═══ APP SHELL ═══ */
-#page-app{display:none;flex-direction:column;min-height:100vh}
-.topbar{position:sticky;top:0;z-index:200;height:52px;display:flex;align-items:center;
-  justify-content:space-between;padding:0 1.4rem;
-  background:rgba(8,9,12,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
-.logo{font-family:var(--M);font-size:1.05rem;font-weight:700;color:var(--accent);letter-spacing:-.03em;flex-shrink:0}
-.tnav{display:flex;gap:2px;overflow-x:auto}
+/* ═══════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════ */
+#pApp{display:none;flex-direction:column;min-height:100vh}
+
+/* Topbar */
+.topbar{position:sticky;top:0;z-index:200;
+  height:calc(52px + var(--st));padding-top:var(--st);
+  display:flex;align-items:center;justify-content:space-between;
+  padding-left:1.2rem;padding-right:1.2rem;
+  background:rgba(8,9,12,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border)}
+.logo{font-family:var(--M);font-size:1rem;font-weight:700;color:var(--accent);letter-spacing:-.03em;flex-shrink:0;user-select:none}
+.tnav{display:flex;gap:1px;overflow-x:auto;scrollbar-width:none}
 .tnav::-webkit-scrollbar{display:none}
-.nb{background:none;border:none;font-family:var(--F);font-size:.77rem;font-weight:600;color:var(--muted);
-  cursor:pointer;padding:.36rem .78rem;border-radius:4px;transition:all .14s;white-space:nowrap;
-  text-transform:uppercase;letter-spacing:.05em}
+.nb{background:none;border:none;font-family:var(--F);font-size:.74rem;font-weight:600;color:var(--muted);
+  cursor:pointer;padding:.36rem .72rem;border-radius:4px;transition:all var(--transition);white-space:nowrap;
+  text-transform:uppercase;letter-spacing:.05em;-webkit-tap-highlight-color:transparent}
 .nb:hover{color:var(--text);background:var(--bg3)}
 .nb.active{color:var(--accent);background:var(--adim)}
-.tright{display:flex;align-items:center;gap:.75rem;flex-shrink:0}
-.uchip{font-family:var(--M);font-size:.7rem;color:var(--muted2)}
+.tright{display:flex;align-items:center;gap:.6rem;flex-shrink:0}
+.uchip{font-family:var(--M);font-size:.68rem;color:var(--muted2)}
 .uchip b{color:var(--accent)}
 
-/* ═══ TRAVEL ALERT BAR ═══ */
-#tab{display:none;align-items:center;gap:.75rem;flex-wrap:wrap;
-  padding:.5rem 1.4rem;background:linear-gradient(90deg,rgba(232,197,71,.12),rgba(232,197,71,.04));
-  border-bottom:1px solid rgba(232,197,71,.25)}
-#tab.show{display:flex}
-.tab-icon{font-size:1.1rem;flex-shrink:0}
-.tab-text{font-size:.8rem;color:var(--text)}
-.tab-text b{color:var(--accent)}
-.tab-cd{font-family:var(--M);font-size:.9rem;font-weight:700;color:var(--accent);margin-left:auto}
-.tab-dest{font-size:.75rem;color:var(--muted2);font-family:var(--M)}
-.notif-btn{font-size:.7rem;background:rgba(232,197,71,.1);border:1px solid rgba(232,197,71,.25);
-  border-radius:3px;color:var(--accent);cursor:pointer;padding:3px 9px;font-family:var(--M);transition:all .15s}
-.notif-btn:hover{background:rgba(232,197,71,.2)}
-.notif-btn.on{background:rgba(52,208,122,.1);border-color:rgba(52,208,122,.3);color:var(--green)}
+/* Travel alert bar */
+#tbar{display:none;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.48rem 1.2rem;
+  background:linear-gradient(90deg,rgba(232,197,71,.13),rgba(232,197,71,.04));
+  border-bottom:1px solid rgba(232,197,71,.22)}
+#tbar.show{display:flex}
+.tbar-icon{font-size:1.05rem;flex-shrink:0}
+.tbar-txt{font-size:.77rem;color:var(--text)}
+.tbar-txt b{color:var(--accent)}
+.tbar-cd{font-family:var(--M);font-size:.88rem;font-weight:700;color:var(--accent);margin-left:auto}
+.nfbtn{font-size:.68rem;background:rgba(232,197,71,.08);border:1px solid rgba(232,197,71,.22);
+  border-radius:3px;color:var(--accent);cursor:pointer;padding:3px 8px;font-family:var(--M);
+  transition:all var(--transition);-webkit-tap-highlight-color:transparent}
+.nfbtn.on{background:rgba(52,208,122,.1);border-color:rgba(52,208,122,.3);color:var(--green)}
 
-/* ═══ CONTENT ═══ */
-.content{flex:1;max-width:1440px;width:100%;margin:0 auto;padding:1.4rem}
-.view{display:none}.view.active{display:block}
-.ph{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.4rem}
-.pht{font-size:1.65rem;font-weight:800;color:#fff;line-height:1}
+/* Install banner */
+#ibanner{display:none;align-items:center;gap:.75rem;padding:.52rem 1.2rem;
+  background:linear-gradient(90deg,rgba(74,158,240,.1),rgba(74,158,240,.03));
+  border-bottom:1px solid rgba(74,158,240,.18);flex-wrap:wrap}
+#ibanner.show{display:flex}
+.ibtxt{font-size:.77rem;color:var(--text);flex:1}
+.ibtxt b{color:var(--blue)}
+.ibdiv{display:flex;gap:.5rem}
+.ib2{font-size:.7rem;border:1px solid rgba(74,158,240,.3);background:rgba(74,158,240,.08);
+  border-radius:4px;color:var(--blue);cursor:pointer;padding:4px 10px;font-family:var(--M);transition:all var(--transition)}
+.ib2:hover{background:rgba(74,158,240,.15)}
+.ib-dis{background:none;border:1px solid var(--border);color:var(--muted)}
+.ib-dis:hover{color:var(--text)}
+
+/* ═══════════════════════════════════════════
+   CONTENT & VIEWS
+═══════════════════════════════════════════ */
+.content{flex:1;max-width:1440px;width:100%;margin:0 auto;
+  padding:1.4rem 1.4rem calc(1.4rem + var(--sb)) 1.4rem}
+.view{display:none;animation:viewIn .2s ease}
+.view.active{display:block}
+@keyframes viewIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Page header */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:.9rem;margin-bottom:1.3rem}
+.pht{font-size:1.6rem;font-weight:800;color:#fff;line-height:1}
 .pht span{color:var(--accent)}
-.phs{font-family:var(--M);font-size:.68rem;color:var(--muted);margin-top:4px}
+.phs{font-family:var(--M);font-size:.66rem;color:var(--muted);margin-top:5px}
 
-/* ═══ CONTROLS ═══ */
-.cb{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;margin-bottom:1.1rem}
-.ci{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:.5rem .82rem;
-  color:var(--text);font-family:var(--F);font-size:.82rem;outline:none;transition:border-color .18s;min-width:0}
+/* Controls bar */
+.cb{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:1rem}
+.ci{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.52rem .82rem;color:var(--text);font-family:var(--F);font-size:.82rem;
+  outline:none;transition:border-color var(--transition);min-width:0;-webkit-appearance:none}
 .ci:focus{border-color:var(--accent)}
 .ci::placeholder{color:var(--muted)}
-.cs{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:.5rem .75rem;
-  color:var(--text);font-family:var(--F);font-size:.82rem;outline:none;cursor:pointer}
-.sw{width:230px}
-.rfbtn{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:.5rem .88rem;
-  font-family:var(--M);font-size:.72rem;color:var(--text);cursor:pointer;transition:all .14s;
-  display:flex;align-items:center;gap:5px;white-space:nowrap}
+.ci-w{width:220px}
+.cs{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.52rem .75rem;color:var(--text);font-family:var(--F);font-size:.82rem;
+  outline:none;cursor:pointer;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a5870'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .6rem center;padding-right:1.8rem}
+.rfbtn{background:var(--bg3);border:1px solid var(--b2);border-radius:var(--radius);
+  padding:.52rem .88rem;font-family:var(--M);font-size:.7rem;color:var(--text);cursor:pointer;
+  transition:all var(--transition);display:flex;align-items:center;gap:5px;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent}
 .rfbtn:hover{border-color:var(--accent);color:var(--accent)}
 .rfbtn:disabled{opacity:.38;cursor:not-allowed}
-.spin{display:inline-block}.spinning{animation:spin .7s linear infinite}
+.spin{display:inline-block}
+.spinning{animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ═══ DEST TABS ═══ */
-.dtabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:1.1rem}
+/* Destination tabs */
+.dtabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:1rem}
 .dtab{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border);
-  border-radius:4px;padding:.4rem .76rem;font-family:var(--F);font-size:.74rem;font-weight:600;
-  color:var(--muted2);cursor:pointer;transition:all .14s;white-space:nowrap}
+  border-radius:var(--radius);padding:.4rem .72rem;font-family:var(--F);font-size:.72rem;font-weight:600;
+  color:var(--muted2);cursor:pointer;transition:all var(--transition);white-space:nowrap;
+  -webkit-tap-highlight-color:transparent}
 .dtab:hover{border-color:var(--muted);color:var(--text)}
 .dtab.active{background:var(--adim);border-color:var(--accent);color:var(--accent)}
-.dc{font-family:var(--M);font-size:.6rem;background:var(--bg3);border-radius:20px;padding:1px 6px;color:var(--muted)}
+.dc{font-family:var(--M);font-size:.58rem;background:var(--bg3);border-radius:20px;padding:1px 6px;color:var(--muted);margin-left:2px}
 .dtab.active .dc{background:rgba(232,197,71,.15);color:var(--accent)}
 
-/* ═══ STATUS BAR ═══ */
-.sbar{display:flex;align-items:center;gap:.55rem;font-family:var(--M);font-size:.67rem;
-  color:var(--muted);margin-bottom:.9rem;flex-wrap:wrap}
+/* Status bar */
+.sbar{display:flex;align-items:center;gap:.5rem;font-family:var(--M);font-size:.64rem;color:var(--muted);margin-bottom:.9rem;flex-wrap:wrap}
 .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .dg{background:var(--green);animation:blink 2s infinite}
 .dy{background:var(--orange)}
 .dr{background:var(--red)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* ═══ PRODUCT CARDS ═══ */
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.85rem}
-.pc{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:.9rem;
-  display:flex;flex-direction:column;gap:.55rem;transition:border-color .16s,background .16s;animation:fu .22s ease both}
-.pc:hover{border-color:rgba(232,197,71,.22);background:#0f141d}
-@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-.ptop{display:flex;justify-content:space-between;align-items:flex-start;gap:5px}
-.pname{font-size:.86rem;font-weight:700;color:#fff;line-height:1.3;flex:1}
-.fbtn{background:none;border:none;cursor:pointer;font-size:1rem;line-height:1;color:var(--muted);transition:all .18s;padding:2px;flex-shrink:0}
-.fbtn:hover{color:var(--accent);transform:scale(1.15)}
+/* ═══════════════════════════════════════════
+   PRODUCT CARDS
+═══════════════════════════════════════════ */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.8rem}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.92rem;display:flex;flex-direction:column;gap:.52rem;
+  transition:border-color var(--transition),background var(--transition),box-shadow var(--transition);
+  animation:fu .22s ease both}
+.pc:hover{border-color:rgba(232,197,71,.25);background:#0f141d;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.ptop{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+.pname{font-size:.85rem;font-weight:700;color:#fff;line-height:1.3;flex:1}
+.fbtn{background:none;border:none;cursor:pointer;font-size:.95rem;line-height:1;color:var(--muted);
+  transition:all var(--transition);padding:2px;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.fbtn:hover{color:var(--accent);transform:scale(1.2)}
 .fbtn.on{color:var(--accent)}
 .pprice{font-family:var(--M);font-size:1.05rem;font-weight:700;color:var(--accent)}
-.pmkt{font-family:var(--M);font-size:.67rem;color:var(--muted2)}
-.pprofit{font-family:var(--M);font-size:.72rem}
+.pmkt{font-family:var(--M);font-size:.66rem;color:var(--muted2)}
+.pprofit{font-family:var(--M);font-size:.7rem}
 .pos{color:var(--green)}.neg{color:var(--red)}
 .pills{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
-.pill{font-family:var(--M);font-size:.59rem;padding:2px 7px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);white-space:nowrap}
+.pill{font-family:var(--M);font-size:.58rem;padding:2px 7px;border-radius:20px;
+  background:var(--bg3);border:1px solid var(--border);color:var(--muted);white-space:nowrap}
 .pg{color:var(--green);border-color:rgba(52,208,122,.25);background:var(--gdim)}
 .pr{color:var(--red);border-color:rgba(240,74,58,.2);background:var(--rdim)}
 .pb{color:var(--blue);border-color:rgba(74,158,240,.2);background:var(--bdim)}
 .pp{color:var(--purple);border-color:rgba(160,122,240,.2);background:var(--pdim)}
-.pfoot{font-family:var(--M);font-size:.63rem;color:var(--muted);display:flex;align-items:center;gap:5px;
-  border-top:1px solid var(--border);padding-top:.5rem;margin-top:.05rem}
+.pfoot{font-family:var(--M);font-size:.61rem;color:var(--muted);
+  display:flex;align-items:center;gap:5px;border-top:1px solid var(--border);padding-top:.5rem;margin-top:.05rem}
 
-/* ═══ SKELETON ═══ */
-.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.85rem}
-.skel{height:135px;background:var(--card);border:1px solid var(--border);border-radius:5px;position:relative;overflow:hidden}
-.skel::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.024),transparent);animation:shim 1.4s infinite}
+/* Skeleton loaders */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.8rem}
+.skel{height:130px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);position:relative;overflow:hidden}
+.skel::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.022),transparent);
+  animation:shim 1.4s infinite}
 @keyframes shim{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
-/* ═══ EMPTY ═══ */
+/* Empty & error states */
 .empty{text-align:center;padding:3rem 2rem;color:var(--muted2)}
-.ei{font-size:2.5rem;margin-bottom:.7rem;opacity:.3}
+.ei{font-size:2.4rem;margin-bottom:.7rem;opacity:.3}
 .empty p{font-size:.82rem;line-height:1.75}
-.empty code{font-family:var(--M);font-size:.7rem;background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--red)}
+.empty code{font-family:var(--M);font-size:.68rem;background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--red)}
 
-/* ═══ PANEL ═══ */
-.panel{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1.15rem}
-.ptitle{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.95rem}
+/* Panel */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem}
+.ptitle{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.9rem}
 
-/* ═══ MONITOR / TRACKER ═══ */
-.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
-@media(max-width:700px){.tgrid{grid-template-columns:1fr}}
-.ts-state{display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem}
-.ts-bigdot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
-.tsd-traveling{background:var(--orange);box-shadow:0 0 8px rgba(240,144,48,.45);animation:blink 1.2s infinite}
-.tsd-abroad{background:var(--green);box-shadow:0 0 8px rgba(52,208,122,.35)}
-.tsd-home{background:var(--muted)}
-.ts-lbl{font-size:.9rem;font-weight:700;color:#fff}
-.ts-sub{font-size:.7rem;color:var(--muted2);font-family:var(--M);margin-top:2px}
-.ts-cd{font-family:var(--M);font-size:2rem;font-weight:700;color:var(--accent);margin:.5rem 0;letter-spacing:.04em}
-.ts-bw{background:var(--bg2);border-radius:20px;height:5px;overflow:hidden;margin-bottom:.65rem}
+/* ═══════════════════════════════════════════
+   MONITOR / TRAVEL TRACKER
+═══════════════════════════════════════════ */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem}
+.ts-state{display:flex;align-items:center;gap:.72rem;margin-bottom:.85rem}
+.ts-bd{width:13px;height:13px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.bd-trv{background:var(--orange);box-shadow:0 0 10px rgba(240,144,48,.5);animation:blink 1.2s infinite}
+.bd-abrd{background:var(--green);box-shadow:0 0 10px rgba(52,208,122,.4)}
+.bd-home{background:var(--muted)}
+.ts-lbl{font-size:.88rem;font-weight:700;color:#fff}
+.ts-sub{font-size:.68rem;color:var(--muted2);font-family:var(--M);margin-top:2px}
+.ts-cd{font-family:var(--M);font-size:1.9rem;font-weight:700;color:var(--accent);margin:.45rem 0;letter-spacing:.04em}
+.ts-bw{background:var(--bg2);border-radius:20px;height:5px;overflow:hidden;margin-bottom:.6rem}
 .ts-bar{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),#f0d070);transition:width .8s ease}
-.irow{display:flex;align-items:center;justify-content:space-between;font-size:.71rem;margin-bottom:.32rem}
+.irow{display:flex;align-items:center;justify-content:space-between;font-size:.7rem;margin-bottom:.3rem}
 .il{color:var(--muted)}.iv{font-family:var(--M);color:var(--text)}
-.ntog{display:flex;align-items:center;gap:.6rem;margin-top:.8rem;padding-top:.75rem;border-top:1px solid var(--border)}
-.sw-wrap{position:relative;width:38px;height:20px;cursor:pointer;flex-shrink:0}
-.sw-wrap input{opacity:0;width:0;height:0;position:absolute}
-.sw-track{position:absolute;inset:0;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;transition:all .2s}
+
+/* Notification toggle */
+.ntog{display:flex;align-items:center;gap:.6rem;margin-top:.75rem;padding-top:.72rem;border-top:1px solid var(--border)}
+.sww{position:relative;width:38px;height:20px;cursor:pointer;flex-shrink:0}
+.sww input{opacity:0;width:0;height:0;position:absolute}
+.sw-track{position:absolute;inset:0;background:var(--bg3);border:1px solid var(--b2);border-radius:20px;transition:all .2s}
 .sw-thumb{position:absolute;top:3px;left:3px;width:12px;height:12px;background:var(--muted);border-radius:50%;transition:all .2s}
-.sw-wrap input:checked~.sw-track{background:var(--adim);border-color:var(--accent)}
-.sw-wrap input:checked~.sw-thumb{left:21px;background:var(--accent)}
-.nlbl{font-size:.74rem;color:var(--muted2)}
+.sww input:checked~.sw-track{background:var(--adim);border-color:var(--accent)}
+.sww input:checked~.sw-thumb{left:21px;background:var(--accent)}
+.ntog-lbl{font-size:.72rem;color:var(--muted2)}
 
-/* ═══ PEOPLE ABROAD ═══ */
+/* ═══════════════════════════════════════════
+   PEOPLE ABROAD
+═══════════════════════════════════════════ */
+.people-controls{display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
 .prow{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);
-  border:1px solid var(--border);border-radius:4px;padding:.52rem .78rem;margin-bottom:.4rem;
-  transition:border-color .14s}
-.prow:hover{border-color:var(--border2)}
-.pleft{display:flex;align-items:center;gap:.6rem}
-.avt{width:30px;height:30px;background:var(--bg3);border-radius:50%;border:1px solid var(--border2);
-  display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;font-family:var(--M);color:var(--muted)}
-.pname{font-size:.8rem;font-weight:700;color:#fff}
-.pmeta{font-family:var(--M);font-size:.62rem;color:var(--muted)}
-.pbadge{font-family:var(--M);font-size:.6rem;padding:2px 7px;border-radius:3px;
-  background:var(--gdim);color:var(--green);border:1px solid rgba(52,208,122,.25)}
+  border:1px solid var(--border);border-radius:var(--radius);padding:.52rem .78rem;
+  margin-bottom:.38rem;transition:border-color var(--transition)}
+.prow:hover{border-color:var(--b2)}
+.pleft{display:flex;align-items:center;gap:.6rem;flex:1;min-width:0}
+.avt{width:30px;height:30px;background:var(--bg3);border-radius:50%;border:1px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;
+  flex-shrink:0;font-family:var(--M);color:var(--muted);font-weight:700}
+.pinfo{min-width:0;flex:1}
+.pnlbl{font-size:.78rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pnlbl a{color:inherit;text-decoration:none;transition:color var(--transition)}
+.pnlbl a:hover{color:var(--accent)}
+.pnlbl .pid{color:var(--muted);font-size:.65rem;font-family:var(--M);font-weight:400}
+.pmlbl{font-family:var(--M);font-size:.6rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pright{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;margin-left:.5rem}
+.pbadge{font-family:var(--M);font-size:.58rem;padding:2px 7px;border-radius:3px;
+  background:var(--gdim);color:var(--green);border:1px solid rgba(52,208,122,.22);white-space:nowrap}
+.pbadge-trv{background:rgba(240,144,48,.08);color:var(--orange);border-color:rgba(240,144,48,.25)}
+.pbadge-hosp{background:var(--rdim);color:var(--red);border-color:rgba(240,74,58,.25)}
+.ponline{font-family:var(--M);font-size:.6rem;color:var(--muted)}
+.ponline.online{color:var(--green)}
+.plevel{font-family:var(--M);font-size:.68rem;color:var(--muted2)}
 
-/* ═══ POLL LOG ═══ */
-.plog{font-family:var(--M);font-size:.67rem;color:var(--muted);max-height:110px;overflow-y:auto;
+/* Poll log */
+.plog{font-family:var(--M);font-size:.64rem;color:var(--muted);max-height:100px;overflow-y:auto;
   display:flex;flex-direction:column;gap:2px}
 .plog-line{padding:2px 0;border-bottom:1px solid var(--border)}
-.plog-ok{color:var(--green)}.plog-err{color:var(--red)}.plog-info{color:var(--blue)}
+.pl-ok{color:var(--green)}.pl-err{color:var(--red)}.pl-info{color:var(--blue)}
 
-/* ═══ DESTINATION GUIDE ═══ */
-.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:.9rem}
-.dgc{background:var(--card);border:1px solid var(--border);border-radius:5px;overflow:hidden;transition:border-color .16s}
-.dgc:hover{border-color:var(--border2)}
-.dgch{display:flex;align-items:center;gap:.7rem;padding:.9rem 1rem .8rem;border-bottom:1px solid var(--border)}
-.dgcf{font-size:1.6rem;line-height:1}
-.dgct{font-size:.92rem;font-weight:700;color:#fff}
-.dgcity{font-size:.67rem;color:var(--muted);font-family:var(--M)}
-.dgb{padding:.85rem 1rem}
-.dgs{margin-bottom:.75rem}
+/* ═══════════════════════════════════════════
+   INTELLIGENCE DASHBOARD
+═══════════════════════════════════════════ */
+.intel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.9rem;margin-bottom:1.2rem}
+.intel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1rem;display:flex;flex-direction:column;gap:.4rem;transition:border-color var(--transition)}
+.intel-card:hover{border-color:var(--b2)}
+.intel-card.highlight{border-color:rgba(232,197,71,.3);background:rgba(232,197,71,.03)}
+.ic-icon{font-size:1.4rem;margin-bottom:.2rem}
+.ic-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.ic-val{font-family:var(--M);font-size:1.05rem;font-weight:700;color:var(--accent)}
+.ic-val.big{font-size:1.3rem}
+.ic-sub{font-size:.7rem;color:var(--muted2)}
+.ic-sub b{color:var(--text)}
+.intel-cols{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.top-item-row{display:flex;align-items:center;justify-content:space-between;
+  padding:.48rem .65rem;border-radius:4px;margin-bottom:.3rem;background:var(--bg2);
+  border:1px solid var(--border);cursor:pointer;transition:border-color var(--transition)}
+.top-item-row:hover{border-color:var(--accent)}
+.tir-left{display:flex;align-items:center;gap:7px}
+.tir-rank{font-family:var(--M);font-size:.6rem;color:var(--muted);width:16px;flex-shrink:0}
+.tir-name{font-size:.76rem;font-weight:700;color:#fff}
+.tir-dest{font-family:var(--M);font-size:.6rem;color:var(--muted)}
+.tir-right{text-align:right}
+.tir-profit{font-family:var(--M);font-size:.78rem;color:var(--green)}
+.tir-pmin{font-family:var(--M);font-size:.62rem;color:var(--muted)}
+.alert-row{display:flex;align-items:center;justify-content:space-between;
+  padding:.42rem .62rem;border-radius:4px;margin-bottom:.28rem;
+  background:rgba(240,144,48,.06);border:1px solid rgba(240,144,48,.2)}
+.alert-row-red{background:var(--rdim);border-color:rgba(240,74,58,.25)}
+.alert-name{font-size:.76rem;font-weight:700;color:var(--orange)}
+.alert-name-red{color:var(--red)}
+.alert-sub{font-family:var(--M);font-size:.6rem;color:var(--muted)}
+.alert-val{font-family:var(--M);font-size:.75rem;color:var(--orange)}
+
+/* ═══════════════════════════════════════════
+   DESTINATION GUIDE
+═══════════════════════════════════════════ */
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.85rem}
+.dgc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;transition:border-color var(--transition)}
+.dgc:hover{border-color:var(--b2)}
+.dgch{display:flex;align-items:center;gap:.65rem;padding:.9rem .95rem .8rem;border-bottom:1px solid var(--border)}
+.dgcf{font-size:1.55rem;line-height:1}
+.dgct{font-size:.9rem;font-weight:700;color:#fff}
+.dgcity{font-size:.65rem;color:var(--muted);font-family:var(--M)}
+.dgb{padding:.82rem .95rem}
+.dgs{margin-bottom:.7rem}
 .dgs:last-child{margin-bottom:0}
-.dgsl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.38rem}
-.extras{display:flex;flex-wrap:wrap;gap:.35rem}
-.xb{display:flex;align-items:center;gap:4px;font-size:.7rem;font-weight:600;
+.dgsl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.35rem}
+.extras{display:flex;flex-wrap:wrap;gap:.3rem}
+.xb{display:flex;align-items:center;gap:4px;font-size:.68rem;font-weight:600;
   padding:3px 8px;border-radius:3px;border:1px solid;white-space:nowrap}
 .x-rehab{color:#a0e090;border-color:rgba(160,224,144,.3);background:rgba(160,224,144,.07)}
 .x-bank{color:#f0d060;border-color:rgba(240,208,96,.3);background:rgba(240,208,96,.07)}
 .x-fortune{color:#e090f0;border-color:rgba(224,144,240,.3);background:rgba(224,144,240,.07)}
 .x-hunt{color:#f0a050;border-color:rgba(240,160,80,.3);background:rgba(240,160,80,.07)}
+.x-sc{color:var(--blue);border-color:rgba(74,158,240,.3);background:var(--bdim)}
 .x-safe{color:var(--green);border-color:rgba(52,208,122,.3);background:var(--gdim)}
 .x-warn{color:var(--orange);border-color:rgba(240,144,48,.3);background:rgba(240,144,48,.08)}
 .x-danger{color:var(--red);border-color:rgba(240,74,58,.3);background:var(--rdim)}
-.frow{display:flex;gap:.5rem;font-size:.7rem;margin-bottom:.27rem}
-.flb{color:var(--muted);width:70px;flex-shrink:0;font-family:var(--M)}
-.fvl{color:var(--text)}
-.fvl b{color:var(--accent)}
+.frow{display:flex;gap:.5rem;font-size:.69rem;margin-bottom:.25rem}
+.flb{color:var(--muted);width:68px;flex-shrink:0;font-family:var(--M)}
+.fvl{color:var(--text)}.fvl b{color:var(--accent)}
 
-/* ═══ PLANNER / TRIP ═══ */
-.pcols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-@media(max-width:680px){.pcols{grid-template-columns:1fr}}
+/* ═══════════════════════════════════════════
+   TRIP PLANNER
+═══════════════════════════════════════════ */
+.pcols{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
 .dsr{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);
-  border:1px solid var(--border);border-radius:4px;padding:.55rem .78rem;margin-bottom:.42rem;
-  cursor:pointer;transition:border-color .14s}
+  border:1px solid var(--border);border-radius:var(--radius);padding:.52rem .75rem;
+  margin-bottom:.4rem;cursor:pointer;transition:border-color var(--transition)}
 .dsr:hover{border-color:var(--accent)}
-.dsrl{display:flex;align-items:center;gap:8px}
-.dsrf{font-size:1.2rem}.dsrn{font-size:.8rem;font-weight:700;color:#fff}
-.dsrc{font-family:var(--M);font-size:.62rem;color:var(--muted)}
+.dsrl{display:flex;align-items:center;gap:7px}
+.dsrf{font-size:1.15rem}.dsrn{font-size:.78rem;font-weight:700;color:#fff}
+.dsrc{font-family:var(--M);font-size:.6rem;color:var(--muted)}
 .dsrr{text-align:right}
-.dsrp{font-family:var(--M);font-size:.75rem;color:var(--green)}
-.dsra{font-family:var(--M);font-size:.6rem;color:var(--muted)}
-.tir{display:flex;align-items:center;justify-content:space-between;padding:.45rem .65rem;border-radius:4px;
-  margin-bottom:.3rem;background:var(--bg2);border:1px solid var(--border);cursor:pointer;transition:border-color .14s}
-.tir:hover{border-color:var(--accent)}
-.tirl{display:flex;align-items:center;gap:7px}
-.tirrank{font-family:var(--M);font-size:.62rem;color:var(--muted);width:16px;flex-shrink:0}
-.tirn{font-size:.77rem;font-weight:700;color:#fff}
-.tird{font-family:var(--M);font-size:.61rem;color:var(--muted)}
-.tirp{font-family:var(--M);font-size:.8rem;color:var(--accent);flex-shrink:0}
-
-/* ═══ TRIP BUILDER ═══ */
-.tbuild{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1.2rem;margin-bottom:1rem}
-.tbform{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin-bottom:.9rem}
-@media(max-width:600px){.tbform{grid-template-columns:1fr}}
-.tbacts{display:flex;gap:.5rem;flex-wrap:wrap}
-
-/* ═══ TRIP RESULT ═══ */
-.tresult{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1.2rem;margin-bottom:1rem}
-.riskrow{display:flex;align-items:center;gap:1.2rem;margin-bottom:1rem;flex-wrap:wrap;
-  padding:.8rem;background:var(--bg2);border-radius:4px;border:1px solid var(--border)}
+.dsrp{font-family:var(--M);font-size:.73rem;color:var(--green)}
+.dsra{font-family:var(--M);font-size:.58rem;color:var(--muted)}
+.tbuild{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.15rem;margin-bottom:.9rem}
+.tbform{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.65rem;margin-bottom:.85rem}
+.tresult{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.15rem;margin-bottom:.9rem}
+.riskrow{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;
+  padding:.75rem;background:var(--bg2);border-radius:4px;border:1px solid var(--border)}
 .riskbox{text-align:center}
-.riskbox .rl{font-size:.63rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
-.riskbox .rv{font-family:var(--M);font-size:.95rem;font-weight:700;color:var(--text)}
+.rl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.rv{font-family:var(--M);font-size:.92rem;font-weight:700;color:var(--text)}
 .rv.low{color:var(--green)}.rv.med{color:var(--orange)}.rv.high{color:var(--red)}
-.warnings{margin-bottom:1rem}
-.wline{display:flex;align-items:flex-start;gap:.5rem;font-size:.74rem;padding:.45rem .65rem;
-  border-radius:3px;margin-bottom:.35rem}
+.warnings{margin-bottom:.9rem}
+.wline{display:flex;align-items:flex-start;gap:.45rem;font-size:.72rem;padding:.42rem .62rem;border-radius:3px;margin-bottom:.32rem}
 .wl-safe{background:var(--gdim);color:var(--green);border:1px solid rgba(52,208,122,.2)}
 .wl-warn{background:rgba(240,144,48,.08);color:var(--orange);border:1px solid rgba(240,144,48,.2)}
 .wl-danger{background:var(--rdim);color:var(--red);border:1px solid rgba(240,74,58,.2)}
-.timeline{display:flex;flex-direction:column;gap:.65rem;margin-top:1rem}
-.tstep{display:flex;align-items:flex-start;gap:.75rem;position:relative}
-.tstep::before{content:'';position:absolute;left:10px;top:24px;width:1px;
-  height:calc(100% + .65rem);background:var(--border)}
+.timeline{display:flex;flex-direction:column;gap:.6rem;margin-top:.9rem}
+.tstep{display:flex;align-items:flex-start;gap:.7rem;position:relative}
+.tstep::before{content:"";position:absolute;left:10px;top:24px;width:1px;height:calc(100% + .6rem);background:var(--border)}
 .tstep:last-child::before{display:none}
 .tsi{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:.72rem;flex-shrink:0;border:1px solid var(--border);background:var(--bg2);z-index:1;margin-top:2px}
+  font-size:.7rem;flex-shrink:0;border:1px solid var(--border);background:var(--bg2);z-index:1;margin-top:2px}
 .tsc{flex:1}
-.tst{font-size:.83rem;font-weight:700;color:#fff;margin-bottom:2px}
-.tss{font-size:.71rem;color:var(--muted2);line-height:1.5}
-.tsbadge{display:inline-flex;align-items:center;gap:3px;font-size:.66rem;font-family:var(--M);
-  padding:2px 7px;border-radius:3px;margin-top:3px}
+.tst{font-size:.82rem;font-weight:700;color:#fff;margin-bottom:2px}
+.tss{font-size:.7rem;color:var(--muted2);line-height:1.55}
+.tsbadge{display:inline-flex;align-items:center;gap:3px;font-size:.65rem;font-family:var(--M);padding:2px 7px;border-radius:3px;margin-top:3px}
 
-/* ═══ SETTINGS ═══ */
-.ssec{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1.15rem;margin-bottom:.9rem;max-width:520px}
-.skv{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;gap:1rem;flex-wrap:wrap}
+/* ═══════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════ */
+.ssec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.1rem;margin-bottom:.85rem;max-width:540px}
+.skv{display:flex;align-items:center;justify-content:space-between;margin-bottom:.82rem;gap:.9rem;flex-wrap:wrap}
 .skv:last-child{margin-bottom:0}
-.sklbl{font-size:.82rem;font-weight:600;color:var(--text)}.skdsc{font-size:.7rem;color:var(--muted);margin-top:2px}
-.kd{font-family:var(--M);font-size:.7rem;background:var(--bg2);border:1px solid var(--border);
-  border-radius:4px;padding:.42rem .7rem;color:var(--muted2);word-break:break-all;margin-top:.4rem}
+.sklbl{font-size:.8rem;font-weight:600;color:var(--text)}
+.skdsc{font-size:.68rem;color:var(--muted);margin-top:2px}
+.kd{font-family:var(--M);font-size:.68rem;background:var(--bg2);border:1px solid var(--border);
+  border-radius:4px;padding:.42rem .68rem;color:var(--muted2);word-break:break-all;margin-top:.38rem}
 
-/* ═══ TOAST ═══ */
-#toast{position:fixed;bottom:1.4rem;right:1.4rem;background:var(--bg3);border:1px solid var(--border2);
-  border-radius:4px;padding:.58rem 1rem;font-family:var(--M);font-size:.74rem;color:var(--text);
-  z-index:9999;opacity:0;transform:translateY(7px);transition:all .2s;pointer-events:none}
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+#toast{position:fixed;bottom:calc(1.2rem + var(--sb));right:1.2rem;
+  background:var(--bg3);border:1px solid var(--b2);border-radius:var(--radius);
+  padding:.58rem .95rem;font-family:var(--M);font-size:.72rem;color:var(--text);
+  z-index:9999;opacity:0;transform:translateY(7px);transition:all .2s;pointer-events:none;max-width:280px}
 #toast.show{opacity:1;transform:translateY(0)}
 #toast.ok{border-color:rgba(52,208,122,.4);color:var(--green)}
 #toast.err{border-color:rgba(240,74,58,.4);color:var(--red)}
 #toast.info{border-color:rgba(74,158,240,.35);color:var(--blue)}
 
-/* ═══ RESPONSIVE ═══ */
-@media(max-width:580px){
-  .topbar{padding:0 .85rem}.content{padding:1rem .85rem}
-  .pht{font-size:1.3rem}.sw{width:100%}
-  .nb .nl{display:none}
+/* ═══════════════════════════════════════════
+   MOBILE BOTTOM NAV
+═══════════════════════════════════════════ */
+#botnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(8,9,12,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  padding-bottom:var(--sb);
+  min-height:calc(58px + var(--sb));
+  justify-content:space-around;align-items:center}
+.bnn{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:.38rem .3rem;border-radius:6px;cursor:pointer;transition:all var(--transition);
+  flex:1;-webkit-tap-highlight-color:transparent;min-width:0}
+.bni{font-size:1.15rem;line-height:1;transition:filter var(--transition)}
+.bnl{font-size:.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;transition:color var(--transition)}
+.bnn.active .bnl{color:var(--accent)}
+.bnn.active .bni{filter:drop-shadow(0 0 5px var(--accent))}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — MOBILE (≤600px)
+═══════════════════════════════════════════ */
+@media(max-width:600px){
+  .topbar{padding-left:.85rem;padding-right:.85rem}
+  .content{padding:.9rem .85rem calc(72px + var(--sb)) .85rem}
+  .logo{font-size:.9rem}
+  .uchip{display:none}
+  .tnav{display:none}
+  #botnav{display:flex}
+  .pht{font-size:1.25rem}
+  .ci-w{width:100%}
+  .tbform,.tgrid,.pcols,.intel-cols{grid-template-columns:1fr}
+  .pgrid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.65rem}
+  .pc{padding:.78rem}
+  .pprice{font-size:.95rem}
+  .pname{font-size:.8rem}
+  .intel-grid{grid-template-columns:repeat(2,1fr)}
+  .dgrid{grid-template-columns:1fr}
+}
+
+/* TABLET (601–900px) */
+@media(min-width:601px) and (max-width:900px){
+  .pgrid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+  .intel-grid{grid-template-columns:repeat(3,1fr)}
+  .tbform,.pcols{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 <body>
 
-<!-- ════════════════ LOGIN ════════════════ -->
-<div id="page-login">
+<!-- ════════ LOGIN ════════ -->
+<div id="pLogin">
   <div class="lbox">
     <div class="lbanner">
       <div class="lbrand">✈ TornFlight</div>
-      <div class="lsub">Foreign Stock · Travel Monitor · Trip Planner</div>
+      <div class="lsub" id="l-sub">Foreign Stock · Travel Monitor · Trip Planner</div>
     </div>
     <div class="lbody">
-      <h2>Entrar na conta</h2>
-      <p class="hint">
-        Recomendado: <strong>Full Access API Key</strong> para monitor de viagem e lista de jogadores.<br>
-        Gera em <a href="https://www.torn.com/preferences.php#tab=api" target="_blank">torn.com → Preferences → API</a>
-      </p>
+      <div class="lang-row">
+        <button class="lbtn on" onclick="App.lang.set('pt')">🇵🇹 PT</button>
+        <button class="lbtn" onclick="App.lang.set('en')">🇬🇧 EN</button>
+      </div>
+      <h2 id="l-title">Entrar na conta</h2>
+      <p class="hint" id="l-hint"></p>
       <div id="lerr" class="ebox hidden"></div>
-      <div class="fg"><label class="fl">Nome da conta</label>
-        <input id="in-name" class="fi" type="text" placeholder="Ex: Tiago" autocomplete="off"></div>
-      <div class="fg"><label class="fl">API Key (16 caract.)</label>
-        <input id="in-key" class="fi mono" type="text" placeholder="aBcD1234eFgH5678" autocomplete="off" maxlength="24"></div>
-      <button id="btn-login" class="btn bp" onclick="doLogin()">→ Entrar</button>
+      <label class="fl" id="l-nl" for="in-n">Nome da conta</label>
+      <input id="in-n" class="fi" type="text" placeholder="Ex: Tiago" autocomplete="off">
+      <label class="fl" id="l-kl" for="in-k">API Key</label>
+      <input id="in-k" class="fi mono" type="text" placeholder="aBcD1234eFgH5678" autocomplete="off" maxlength="24">
+      <button id="btn-login" class="btn bprimary" onclick="App.auth.login()">→ <span id="l-btn">Entrar</span></button>
       <div id="saved-sec">
-        <div class="saved-hdr">Contas guardadas</div>
+        <div class="shdr" id="l-sh">Contas guardadas</div>
         <div id="saved-list"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════════════ APP ════════════════ -->
-<div id="page-app">
-  <!-- TOPBAR -->
+<!-- ════════ APP ════════ -->
+<div id="pApp">
   <div class="topbar">
     <div class="logo">✈ TornFlight</div>
-    <div class="tnav">
-      <button class="nb active" id="nav-market"    onclick="gv('market')">📦 <span class="nl">Mercado</span></button>
-      <button class="nb"        id="nav-monitor"   onclick="gv('monitor')">🛫 <span class="nl">Monitor</span></button>
-      <button class="nb"        id="nav-guide"     onclick="gv('guide')">🌍 <span class="nl">Destinos</span></button>
-      <button class="nb"        id="nav-trip"      onclick="gv('trip')">🗺 <span class="nl">Plano de Voo</span></button>
-      <button class="nb"        id="nav-favorites" onclick="gv('favorites')">⭐ <span class="nl">Favoritos</span></button>
-      <button class="nb"        id="nav-settings"  onclick="gv('settings')">⚙ <span class="nl">Conta</span></button>
-    </div>
+    <nav class="tnav" aria-label="Main navigation">
+      <button class="nb active" id="nav-market"      onclick="App.nav.go('market')">📦 <span class="nl" id="nt-mkt">Mercado</span></button>
+      <button class="nb"        id="nav-monitor"     onclick="App.nav.go('monitor')">🛫 <span class="nl" id="nt-mon">Monitor</span></button>
+      <button class="nb"        id="nav-intelligence" onclick="App.nav.go('intelligence')">🧠 <span class="nl" id="nt-int">Intelligence</span></button>
+      <button class="nb"        id="nav-guide"       onclick="App.nav.go('guide')">🌍 <span class="nl" id="nt-gd">Destinos</span></button>
+      <button class="nb"        id="nav-trip"        onclick="App.nav.go('trip')">🗺 <span class="nl" id="nt-tr">Plano de Voo</span></button>
+      <button class="nb"        id="nav-favorites"   onclick="App.nav.go('favorites')">⭐ <span class="nl" id="nt-fv">Favoritos</span></button>
+      <button class="nb"        id="nav-settings"    onclick="App.nav.go('settings')">⚙ <span class="nl" id="nt-st">Conta</span></button>
+    </nav>
     <div class="tright">
-      <div class="uchip">Olá, <b id="uname">—</b></div>
-      <button class="btn bg bsm" onclick="doLogout()">Sair</button>
+      <div class="uchip"><b id="uname">—</b></div>
+      <button class="btn bghost bsm" onclick="App.auth.logout()" id="t-logout">Sair</button>
     </div>
   </div>
 
-  <!-- TRAVEL ALERT BAR -->
-  <div id="tab">
-    <span class="tab-icon">✈️</span>
-    <span class="tab-text" id="tab-text">A viajar...</span>
-    <span class="tab-dest" id="tab-dest"></span>
-    <span class="tab-cd" id="tab-cd">—</span>
-    <button class="notif-btn" id="notif-topbar-btn" onclick="toggleNotifUI()">🔔 Notificar</button>
+  <!-- Install banner -->
+  <div id="ibanner">
+    <span class="ibtxt" id="ib-txt"><b>📱</b> Instalar app</span>
+    <div class="ibdiv">
+      <button class="ib2" onclick="App.pwa.install()">⬇ <span id="ib-install">Instalar</span></button>
+      <button class="ib2 ib-dis" onclick="G('ibanner').classList.remove('show')">✕</button>
+    </div>
   </div>
 
-  <div class="content">
+  <!-- Travel alert bar -->
+  <div id="tbar">
+    <span class="tbar-icon">✈️</span>
+    <span class="tbar-txt" id="tbar-txt">A viajar...</span>
+    <span class="tbar-cd" id="tbar-cd">—</span>
+    <button class="nfbtn" id="nfbtn-top" onclick="G('ntog').click()">🔔</button>
+  </div>
 
-    <!-- ════ VIEW: MARKET ════ -->
+  <main class="content">
+
+    <!-- ── MARKET ── -->
     <div class="view active" id="view-market">
       <div class="ph">
         <div>
-          <div class="pht">Foreign <span>Stocks</span></div>
-          <div class="phs">YATA crowd-sourced + Torn API · Preços e lucros calculados</div>
+          <div class="pht" id="v-mkt-t">Foreign <span>Stocks</span></div>
+          <div class="phs" id="v-mkt-s">YATA crowd-sourced + Torn API</div>
         </div>
         <div class="cb" style="margin-bottom:0">
-          <input id="ms" class="ci sw" placeholder="🔍 Pesquisar produto..." oninput="renderMarket()">
-          <select id="mc" class="cs" onchange="renderMarket()"><option value="">Todas as categorias</option></select>
-          <select id="mo" class="cs" onchange="renderMarket()">
-            <option value="cost_asc">Preço ↑</option>
-            <option value="cost_desc">Preço ↓</option>
-            <option value="profit_desc">Lucro ↓</option>
-            <option value="qty_desc">Stock ↓</option>
-            <option value="name_asc">Nome A–Z</option>
+          <input id="ms" class="ci ci-w" placeholder="🔍" oninput="App.market.render()" aria-label="Search products">
+          <select id="mc" class="cs" onchange="App.market.render()">
+            <option value="">—</option>
           </select>
-          <button id="rfbtn" class="rfbtn" onclick="loadData()">
-            <span id="rsp" class="spin">↻</span> Atualizar
+          <select id="mo" class="cs" onchange="App.market.render()">
+            <option value="cost_asc" id="so-ca">Preço ↑</option>
+            <option value="cost_desc" id="so-cd">Preço ↓</option>
+            <option value="profit_desc" id="so-pd">Lucro ↓</option>
+            <option value="qty_desc" id="so-qd">Stock ↓</option>
+            <option value="name_asc" id="so-na">Nome A–Z</option>
+          </select>
+          <button id="rfbtn" class="rfbtn" onclick="App.data.load()">
+            <span id="rsp" class="spin">↻</span> <span id="t-ref">Atualizar</span>
           </button>
         </div>
       </div>
       <div class="dtabs" id="dtabs"></div>
-      <div class="sbar"><span id="sdot" class="dot dy"></span><span id="stxt">A aguardar...</span></div>
+      <div class="sbar"><span id="sdot" class="dot dy"></span><span id="stxt">...</span></div>
       <div id="marea"></div>
     </div>
 
-    <!-- ════ VIEW: MONITOR ════ -->
+    <!-- ── MONITOR ── -->
     <div class="view" id="view-monitor">
       <div class="ph">
         <div>
-          <div class="pht">🛫 <span>Monitor de Viagem</span></div>
-          <div class="phs">Estado em tempo real · Auto-poll a cada 30s · Notificação 3min antes de chegar</div>
+          <div class="pht">🛫 <span id="v-mon-t">Monitor</span></div>
+          <div class="phs" id="v-mon-s">Auto-poll 30s · 3min notification</div>
         </div>
-        <button class="rfbtn" onclick="pollNow()">
-          <span id="psp" class="spin">↻</span> Atualizar agora
+        <button class="rfbtn" onclick="App.monitor.poll(true)">
+          <span id="psp" class="spin">↻</span> <span id="t-upd">Atualizar</span>
         </button>
       </div>
-
       <div class="tgrid">
-        <!-- STATUS CARD -->
+        <!-- Travel status -->
         <div class="panel">
-          <div class="ptitle">Estado de viagem</div>
+          <div class="ptitle" id="t-ts">Estado de viagem</div>
           <div class="ts-state">
-            <div class="ts-bigdot tsd-home" id="bigdot"></div>
+            <div class="ts-bd bd-home" id="bigdot"></div>
             <div>
               <div class="ts-lbl" id="ts-lbl">Em casa</div>
-              <div class="ts-sub" id="ts-sub">Sem viagem ativa</div>
+              <div class="ts-sub" id="ts-sub"></div>
             </div>
           </div>
           <div class="ts-cd hidden" id="ts-cd">00:00:00</div>
           <div class="ts-bw hidden" id="ts-bw"><div class="ts-bar" id="ts-bar" style="width:0%"></div></div>
           <div id="ts-rows"></div>
-          <!-- Notification toggle -->
           <div class="ntog">
-            <label class="sw-wrap">
-              <input type="checkbox" id="ntog-chk" onchange="handleNotifChk()">
+            <label class="sww" for="ntog" aria-label="Notification toggle">
+              <input type="checkbox" id="ntog" onchange="App.monitor.handleNotifToggle()">
               <div class="sw-track"></div>
               <div class="sw-thumb"></div>
             </label>
-            <span class="nlbl" id="ntog-lbl">Notificar 3 min antes de chegar</span>
+            <span class="ntog-lbl" id="ntog-lbl">Notificar 3min antes</span>
           </div>
         </div>
-
-        <!-- PEOPLE CARD -->
+        <!-- People abroad -->
         <div class="panel">
           <div class="ptitle" id="people-title">Jogadores no destino</div>
+          <div class="people-controls hidden" id="people-controls">
+            <input class="ci" style="flex:1;min-width:100px" id="people-search" placeholder="🔍" oninput="App.people.filterRender()">
+            <select class="cs" id="people-sort" onchange="App.people.filterRender()">
+              <option value="name">Nome A–Z</option>
+              <option value="level_desc">Nível ↓</option>
+              <option value="activity_desc">Atividade ↓</option>
+            </select>
+          </div>
           <div id="people-area">
-            <div class="empty"><div class="ei">👥</div><p>Aguardar estado de viagem...</p></div>
+            <div class="empty"><div class="ei">👥</div><p id="t-ppl-wait">Aguardar viagem ativa...</p></div>
           </div>
         </div>
       </div>
-
-      <!-- POLL LOG -->
       <div class="panel">
-        <div class="ptitle">Log de polling (auto: 30s enquanto viajando)</div>
+        <div class="ptitle" id="t-log">Log de polling</div>
         <div class="plog" id="plog"></div>
       </div>
     </div>
 
-    <!-- ════ VIEW: GUIDE ════ -->
+    <!-- ── INTELLIGENCE ── -->
+    <div class="view" id="view-intelligence">
+      <div class="ph">
+        <div>
+          <div class="pht">🧠 <span id="v-int-t">Intelligence</span></div>
+          <div class="phs" id="v-int-s">Análise de mercado · Melhores oportunidades</div>
+        </div>
+        <button class="rfbtn" onclick="App.intelligence.render()">
+          <span class="spin">↻</span> <span id="t-int-ref">Atualizar</span>
+        </button>
+      </div>
+      <!-- KPI cards -->
+      <div class="intel-grid" id="intel-kpis"></div>
+      <!-- Top lists -->
+      <div class="intel-cols">
+        <div class="panel">
+          <div class="ptitle" id="t-top-items">Top 10 — Itens mais lucrativos</div>
+          <div id="intel-top-items"></div>
+        </div>
+        <div class="panel">
+          <div class="ptitle" id="t-top-dests">Top 10 — Destinos</div>
+          <div id="intel-top-dests"></div>
+        </div>
+      </div>
+      <!-- Stock alerts -->
+      <div class="panel" style="margin-top:.9rem">
+        <div class="ptitle" id="t-stock-alerts">Alertas de Stock</div>
+        <div id="intel-alerts"></div>
+      </div>
+    </div>
+
+    <!-- ── GUIDE ── -->
     <div class="view" id="view-guide">
       <div class="ph">
         <div>
-          <div class="pht">🌍 <span>Guia de Destinos</span></div>
-          <div class="phs">Extras exclusivos · Tempos de voo · Nível de segurança · Dicas</div>
+          <div class="pht">🌍 <span id="v-gd-t">Guia de Destinos</span></div>
+          <div class="phs" id="v-gd-s">Extras exclusivos · Tempos de voo · Segurança · Dicas</div>
         </div>
       </div>
       <div class="dgrid" id="dgrid"></div>
     </div>
 
-    <!-- ════ VIEW: TRIP ════ -->
+    <!-- ── TRIP ── -->
     <div class="view" id="view-trip">
       <div class="ph">
         <div>
-          <div class="pht">🗺 <span>Plano de Voo</span></div>
-          <div class="phs">Gera um plano completo com análise de risco e timeline</div>
+          <div class="pht">🗺 <span id="v-tr-t">Plano de Voo</span></div>
+          <div class="phs" id="v-tr-s">Timeline completa com análise de risco</div>
         </div>
       </div>
-
       <div class="tbuild">
-        <div class="ptitle">Configurar viagem</div>
+        <div class="ptitle" id="t-cfg">Configurar viagem</div>
         <div class="tbform">
-          <div class="fg" style="margin-bottom:0">
-            <label class="fl">Destino</label>
-            <select id="tp-dest" class="cs" style="width:100%">
-              <option value="">-- Escolher destino --</option>
+          <div>
+            <label class="fl" id="t-dl" for="tp-d">Destino</label>
+            <select id="tp-d" class="fi" style="margin-top:0"><option value="">—</option></select>
+          </div>
+          <div>
+            <label class="fl" id="t-fl" for="tp-f">Tipo de voo</label>
+            <select id="tp-f" class="fi" style="margin-top:0">
+              <option value="standard" id="ft-s">Standard</option>
+              <option value="airstrip" id="ft-a">Airstrip</option>
+              <option value="wlt" id="ft-w">WLT Benefit</option>
+              <option value="business" id="ft-b">Business Class</option>
             </select>
           </div>
-          <div class="fg" style="margin-bottom:0">
-            <label class="fl">Tipo de voo</label>
-            <select id="tp-flight" class="cs" style="width:100%">
-              <option value="standard">Standard</option>
-              <option value="airstrip">Airstrip (ilha)</option>
-              <option value="wlt">WLT Benefit</option>
-              <option value="business">Business Class</option>
-            </select>
-          </div>
-          <div class="fg" style="margin-bottom:0">
-            <label class="fl">Objetivo principal</label>
-            <select id="tp-goal" class="cs" style="width:100%">
-              <option value="items">🛒 Comprar items</option>
-              <option value="rehab">💊 Reabilitação (Suíça)</option>
-              <option value="bank">🏦 Banco Offshore (Cayman)</option>
-              <option value="fortune">🔮 Leitora da Fortuna (China)</option>
-              <option value="hunt">🦁 Caça (África do Sul)</option>
+          <div>
+            <label class="fl" id="t-gl" for="tp-g">Objetivo</label>
+            <select id="tp-g" class="fi" style="margin-top:0">
+              <option value="items" id="g-i">🛒 Comprar items</option>
+              <option value="rehab" id="g-r">💊 Reabilitação</option>
+              <option value="bank" id="g-b">🏦 Banco Offshore</option>
+              <option value="fortune" id="g-fo">🔮 Leitora da Fortuna</option>
+              <option value="hunt" id="g-h">🦁 Caça de Animais</option>
             </select>
           </div>
         </div>
-        <div class="tbacts">
-          <button class="btn bp" style="width:auto" onclick="buildTrip()">⚡ Gerar plano de viagem</button>
-          <button class="btn bg bsm" onclick="clearTrip()">✕ Limpar</button>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn bprimary" style="width:auto;margin-top:0" onclick="App.trip.build()">⚡ <span id="t-gen">Gerar Plano</span></button>
+          <button class="btn bghost bsm" style="margin-top:0" onclick="App.trip.clear()">✕</button>
         </div>
       </div>
-
       <div id="trip-result" class="hidden"></div>
-
-      <!-- Summary panels -->
-      <div class="pcols" style="margin-top:1rem">
-        <div class="panel"><div class="ptitle">Resumo rápido por destino</div><div id="plan-dests"></div></div>
-        <div class="panel"><div class="ptitle">Top 15 — mais baratos com stock</div><div id="plan-top"></div></div>
+      <div class="pcols" style="margin-top:.9rem">
+        <div class="panel"><div class="ptitle" id="t-ds">Resumo por destino</div><div id="plan-dests"></div></div>
+        <div class="panel"><div class="ptitle" id="t-t15">Top 15 — mais baratos</div><div id="plan-top"></div></div>
       </div>
     </div>
 
-    <!-- ════ VIEW: FAVORITES ════ -->
+    <!-- ── FAVORITES ── -->
     <div class="view" id="view-favorites">
       <div class="ph">
-        <div>
-          <div class="pht">⭐ <span>Favoritos</span></div>
-          <div class="phs">Produtos marcados para acompanhar</div>
-        </div>
-        <input id="fs" class="ci sw" placeholder="🔍 Filtrar favoritos..." oninput="renderFavs()">
+        <div><div class="pht">⭐ <span id="v-fv-t">Favoritos</span></div></div>
+        <input id="fs" class="ci ci-w" placeholder="🔍" oninput="App.favs.render()">
       </div>
       <div id="farea"></div>
     </div>
 
-    <!-- ════ VIEW: SETTINGS ════ -->
+    <!-- ── SETTINGS ── -->
     <div class="view" id="view-settings">
-      <div class="ph"><div><div class="pht">⚙ <span>Conta</span></div></div></div>
+      <div class="ph"><div><div class="pht">⚙ <span id="v-st-t">Conta</span></div></div></div>
 
       <div class="ssec">
-        <div class="ptitle">Conta atual</div>
+        <div class="ptitle" id="t-ca">Conta atual</div>
         <div class="skv">
-          <div><div class="sklbl" id="s-name">—</div><div class="skdsc">Nome no Torn</div></div>
+          <div><div class="sklbl" id="s-name">—</div><div class="skdsc" id="t-tn">Nome Torn</div></div>
         </div>
-        <label class="fl">API Key ativa</label>
+        <label class="fl" id="t-akl">API Key</label>
         <div id="s-key" class="kd">—</div>
       </div>
 
       <div class="ssec">
-        <div class="ptitle">Contas guardadas</div>
-        <div id="s-saved"></div><br>
-        <button class="btn bd bsm" onclick="clearAllAccts()">🗑 Apagar todas as contas</button>
+        <div class="ptitle" id="t-sav">Contas guardadas</div>
+        <div id="s-saved"></div>
+        <br>
+        <button class="btn bdanger bsm" onclick="App.auth.clearAll()" id="t-da">🗑 Apagar todas</button>
       </div>
 
       <div class="ssec">
-        <div class="ptitle">Cache de dados</div>
+        <div class="ptitle" id="t-cache">Cache</div>
         <div class="skv">
-          <div><div class="sklbl">Limpar cache de stocks</div>
-            <div class="skdsc">Força re-download YATA + Torn API</div></div>
-          <button class="btn bd bsm" onclick="clearCache()">Limpar</button>
+          <div><div class="sklbl" id="t-cc">Limpar cache</div><div class="skdsc" id="t-ccs">Re-download YATA + Torn API</div></div>
+          <button class="btn bdanger bsm" onclick="App.data.clearCache()" id="t-ccb">Limpar</button>
         </div>
         <div class="skv">
-          <div><div class="sklbl">Limpar favoritos</div></div>
-          <button class="btn bd bsm" onclick="clearFavsAll()">Limpar</button>
+          <div><div class="sklbl" id="t-cf">Limpar favoritos</div></div>
+          <button class="btn bdanger bsm" onclick="App.favs.clearAll()" id="t-cfb">Limpar</button>
+        </div>
+      </div>
+
+      <div class="ssec">
+        <div class="ptitle" id="t-lang">Idioma / Language</div>
+        <div class="lang-row" style="margin-bottom:0">
+          <button class="lbtn" id="lb-pt" onclick="App.lang.set('pt')">🇵🇹 Português</button>
+          <button class="lbtn" id="lb-en" onclick="App.lang.set('en')">🇬🇧 English</button>
+        </div>
+      </div>
+
+      <div class="ssec">
+        <div class="ptitle" id="t-inst">Instalar como App</div>
+        <p id="t-inst-d" style="font-size:.77rem;color:var(--muted2);line-height:1.75;margin-bottom:.8rem">Adiciona ao ecrã inicial para usar como app nativa.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn bghost bsm" onclick="App.pwa.install()" id="t-inst-b">⬇ Instalar App</button>
+          <button class="btn bghost bsm" onclick="G('inst-instr').classList.toggle('hidden')">📖</button>
+        </div>
+        <div id="inst-instr" class="hidden" style="margin-top:.9rem;padding:.85rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border)">
+          <p style="font-size:.74rem;color:var(--muted2);line-height:1.85" id="t-inst-s">
+            <b style="color:var(--text)">iOS Safari:</b> Partilhar → Adicionar ao Ecrã Inicial<br>
+            <b style="color:var(--text)">Android Chrome:</b> Menu ⋮ → Adicionar ao ecrã inicial<br>
+            <b style="color:var(--text)">Desktop Chrome/Edge:</b> ícone ⊕ na barra de endereço
+          </p>
         </div>
       </div>
 
       <div class="ssec" style="max-width:600px">
-        <div class="ptitle">Fontes de dados</div>
-        <p style="font-size:.77rem;color:var(--muted2);line-height:1.8">
-          <b style="color:var(--text)">Stocks estrangeiros:</b>
-          YATA API <code style="font-family:var(--M);font-size:.68rem;background:var(--bg3);padding:1px 5px;border-radius:3px">yata.yt/api/v1/travel/export/</code>
-          — dados crowd-sourced, sem key necessária.<br>
-          <b style="color:var(--text)">Items e preços de mercado:</b>
-          Torn API <code style="font-family:var(--M);font-size:.68rem;background:var(--bg3);padding:1px 5px;border-radius:3px">torn/items</code> — dados oficiais.<br>
-          <b style="color:var(--text)">Estado de viagem:</b>
-          Torn API <code style="font-family:var(--M);font-size:.68rem;background:var(--bg3);padding:1px 5px;border-radius:3px">user?selections=travel,basic</code>
-          — requer Full Access.<br>
-          <b style="color:var(--text)">Jogadores no destino:</b>
-          Torn API v2 <code style="font-family:var(--M);font-size:.68rem;background:var(--bg3);padding:1px 5px;border-radius:3px">v2/user/abroad</code>
-          — Full Access · apenas perfis públicos (máx ~50).
-        </p>
+        <div class="ptitle" id="t-about">Sobre as fontes de dados</div>
+        <div style="font-size:.76rem;color:var(--muted2);line-height:1.85" id="t-about-body">
+          <p><b style="color:var(--text)">Stocks estrangeiros:</b> YATA (<code style="font-family:var(--M);font-size:.67rem;background:var(--bg3);padding:1px 5px;border-radius:3px">yata.yt/api/v1/travel/export/</code>) — sem key necessária.</p>
+          <p style="margin-top:.5rem"><b style="color:var(--text)">Items e preços:</b> Torn API <code style="font-family:var(--M);font-size:.67rem;background:var(--bg3);padding:1px 5px;border-radius:3px">torn/items</code></p>
+          <p style="margin-top:.5rem"><b style="color:var(--text)">Estado de viagem:</b> Torn API <code style="font-family:var(--M);font-size:.67rem;background:var(--bg3);padding:1px 5px;border-radius:3px">user?selections=travel,basic</code></p>
+          <p style="margin-top:.5rem"><b style="color:var(--text)">Jogadores no destino:</b> YATA export inclui dados de viajantes registados. A Torn API não expõe quem está abroad — esta é a melhor fonte disponível.</p>
+        </div>
       </div>
-    </div>
 
-  </div><!-- /content -->
-</div><!-- /page-app -->
+    </div><!-- /settings -->
+  </main>
 
-<div id="toast"></div>
+  <!-- Mobile bottom nav -->
+  <nav id="botnav" aria-label="Mobile navigation">
+    <button class="bnn active" id="bnn-market"      onclick="App.nav.go('market')"><span class="bni">📦</span><span class="bnl" id="bn-mkt">Mercado</span></button>
+    <button class="bnn"        id="bnn-monitor"     onclick="App.nav.go('monitor')"><span class="bni">🛫</span><span class="bnl" id="bn-mon">Monitor</span></button>
+    <button class="bnn"        id="bnn-intelligence" onclick="App.nav.go('intelligence')"><span class="bni">🧠</span><span class="bnl" id="bn-int">Intel</span></button>
+    <button class="bnn"        id="bnn-guide"       onclick="App.nav.go('guide')"><span class="bni">🌍</span><span class="bnl" id="bn-gd">Destinos</span></button>
+    <button class="bnn"        id="bnn-trip"        onclick="App.nav.go('trip')"><span class="bni">🗺</span><span class="bnl" id="bn-tr">Plano</span></button>
+    <button class="bnn"        id="bnn-favorites"   onclick="App.nav.go('favorites')"><span class="bni">⭐</span><span class="bnl" id="bn-fv">Favs</span></button>
+    <button class="bnn"        id="bnn-settings"    onclick="App.nav.go('settings')"><span class="bni">⚙</span><span class="bnl" id="bn-st">Conta</span></button>
+  </nav>
+</div><!-- /pApp -->
+
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
+/* ═══════════════════════════════════════════════════════════════
+   TORNFLIGHT v2.0 — Main Application
+   Architecture: Modular namespace (App.*)
+   No API keys in source code — stored only in localStorage
+═══════════════════════════════════════════════════════════════ */
 'use strict';
-/* ═══════════════════════════════════════════════
-   CONSTANTS
-═══════════════════════════════════════════════ */
-const YATA_URL    = 'https://yata.yt/api/v1/travel/export/';
-const T_ITEMS     = k => `https://api.torn.com/torn/?selections=items&key=${k}`;
-const T_USER_BASIC= k => `https://api.torn.com/user/?selections=basic&key=${k}`;
-const T_TRAVEL    = k => `https://api.torn.com/user/?selections=travel,basic&key=${k}&timestamp=${Date.now()}`;
-const T_ABROAD    = (c,k) => `https://api.torn.com/v2/user/abroad?country=${c}&key=${k}`;
 
+/* ── DOM Helper ── */
+const G = id => document.getElementById(id);
+
+/* ── Storage Helper ── */
+const Store = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)) } catch { return null } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} },
+  del: k => localStorage.removeItem(k)
+};
+
+/* ══════════════════════════════════════════════════════════════
+   COUNTRY DATA
+══════════════════════════════════════════════════════════════ */
 const CTRY = {
-  mex:{ name:'México',         city:'Ciudad Juárez',  flag:'🇲🇽',
-        ft:{standard:26,airstrip:18,wlt:13,business:8},   cost:6500,  extras:[],
-        safety:'med', muggers:'moderados',
-        tips:'Plushies e Flowers baratos. Ótimo destino de iniciação. Muggers ocasionais.'},
-  cay:{ name:'Cayman Islands', city:'George Town',    flag:'🇰🇾',
-        ft:{standard:35,airstrip:25,wlt:18,business:11},  cost:10000, extras:['bank'],
-        safety:'danger', muggers:'muito frequentes',
-        tips:'Banco Offshore ilimitado com 0.5%/mês. PERIGO: muggers ativos quando depositas/levantas. Nunca fiques offline aqui com dinheiro.'},
-  can:{ name:'Canadá',         city:'Toronto',        flag:'🇨🇦',
-        ft:{standard:41,airstrip:29,wlt:20,business:12},  cost:9000,  extras:[],
-        safety:'med', muggers:'moderados',
-        tips:'Variedade equilibrada. Flowers de boa qualidade. Razoavelmente seguro.'},
-  haw:{ name:'Havai',          city:'Honolulu',       flag:'🇺🇸',
-        ft:{standard:134,airstrip:94,wlt:67,business:40}, cost:11000, extras:['suitcase'],
-        safety:'med', muggers:'moderados',
-        tips:'Suitcases disponíveis (aumentam capacidade de transporte). Voo longo — usa Business Class.'},
-  uni:{ name:'Reino Unido',    city:'Londres',        flag:'🇬🇧',
-        ft:{standard:159,airstrip:111,wlt:80,business:48},cost:18000, extras:[],
-        safety:'med', muggers:'moderados',
-        tips:'Grande variedade de Plushies raros. Voo muito longo — planeia bem.'},
-  arg:{ name:'Argentina',      city:'Buenos Aires',   flag:'🇦🇷',
-        ft:{standard:167,airstrip:117,wlt:83,business:50},cost:21000, extras:[],
-        safety:'med', muggers:'moderados',
-        tips:'Items exclusivos e de alto valor. Um dos melhores para lucros no mercado.'},
-  swi:{ name:'Suíça',          city:'Zurique',        flag:'🇨🇭',
-        ft:{standard:175,airstrip:123,wlt:88,business:53},cost:27000, extras:['rehab'],
-        safety:'safe', muggers:'raros',
-        tips:'Centro de Reabilitação: elimina vício a drogas e enche a felicidade ao máximo. Ideal antes de gym. Muito seguro.'},
-  jap:{ name:'Japão',          city:'Tóquio',         flag:'🇯🇵',
-        ft:{standard:225,airstrip:158,wlt:113,business:68},cost:32000,extras:[],
-        safety:'med', muggers:'moderados',
-        tips:'Plushies raros e exclusivos de alto valor. Voo muito longo — maximiza os slots de transporte.'},
-  chi:{ name:'China',          city:'Pequim',         flag:'🇨🇳',
-        ft:{standard:242,airstrip:169,wlt:121,business:72},cost:35000,extras:['fortune'],
-        safety:'med', muggers:'moderados',
-        tips:'Leitora da Fortuna ($75.000): mostra a % de progresso até ao próximo nível. Essencial para level holders.'},
-  uae:{ name:'Dubai (UAE)',    city:'Dubai',          flag:'🇦🇪',
-        ft:{standard:271,airstrip:190,wlt:135,business:81},cost:32000,extras:[],
-        safety:'med', muggers:'moderados',
-        tips:'Items de luxo e contraband exclusivo. Muito lucrativo no mercado. Voo longo.'},
-  sou:{ name:'África do Sul',  city:'Joanesburgo',    flag:'🇿🇦',
-        ft:{standard:297,airstrip:208,wlt:149,business:89},cost:40000,extras:['hunt'],
-        safety:'med', muggers:'moderados',
-        tips:'Caça de animais selvagens: ganha cash, XP e honors raros. Usa energia. O voo mais longo do jogo.'},
+  mex: { n:{pt:'México',en:'Mexico'}, city:'Ciudad Juárez', flag:'🇲🇽',
+    ft:{standard:26,airstrip:18,wlt:13,business:8}, cost:6500, extras:[], safety:'med',
+    tips:{pt:'Plushies e Flowers baratos. Ótimo destino de iniciação.',
+          en:'Cheap Plushies and Flowers. Great starter destination.'} },
+  cay: { n:{pt:'Cayman Islands',en:'Cayman Islands'}, city:'George Town', flag:'🇰🇾',
+    ft:{standard:35,airstrip:25,wlt:18,business:11}, cost:10000, extras:['bank'], safety:'danger',
+    tips:{pt:'Banco Offshore (0.5%/mês). PERIGO: muggers muito frequentes. Nunca offline com dinheiro!',
+          en:'Offshore Bank (0.5%/month). DANGER: very frequent muggers. Never offline with cash!'} },
+  can: { n:{pt:'Canadá',en:'Canada'}, city:'Toronto', flag:'🇨🇦',
+    ft:{standard:41,airstrip:29,wlt:20,business:12}, cost:9000, extras:[], safety:'med',
+    tips:{pt:'Variedade equilibrada. Flowers de qualidade.',en:'Balanced variety. Quality Flowers.'} },
+  haw: { n:{pt:'Havai',en:'Hawaii'}, city:'Honolulu', flag:'🇺🇸',
+    ft:{standard:134,airstrip:94,wlt:67,business:40}, cost:11000, extras:['suitcase'], safety:'med',
+    tips:{pt:'Suitcases disponíveis (mais capacidade). Voo longo.',en:'Suitcases available (more capacity). Long flight.'} },
+  uni: { n:{pt:'Reino Unido',en:'United Kingdom'}, city:'London', flag:'🇬🇧',
+    ft:{standard:159,airstrip:111,wlt:80,business:48}, cost:18000, extras:[], safety:'med',
+    tips:{pt:'Plushies raros. Voo longo — planeia bem.',en:'Rare Plushies. Long flight — plan carefully.'} },
+  arg: { n:{pt:'Argentina',en:'Argentina'}, city:'Buenos Aires', flag:'🇦🇷',
+    ft:{standard:167,airstrip:117,wlt:83,business:50}, cost:21000, extras:[], safety:'med',
+    tips:{pt:'Items exclusivos de alto valor. Excelente para lucros.',en:'Exclusive high-value items. Excellent for profits.'} },
+  swi: { n:{pt:'Suíça',en:'Switzerland'}, city:'Zurich', flag:'🇨🇭',
+    ft:{standard:175,airstrip:123,wlt:88,business:53}, cost:27000, extras:['rehab'], safety:'safe',
+    tips:{pt:'Reabilitação: elimina vícios e enche felicidade. Ideal antes do gym.',en:'Rehab: removes addictions and fills happiness. Ideal before gym.'} },
+  jap: { n:{pt:'Japão',en:'Japan'}, city:'Tokyo', flag:'🇯🇵',
+    ft:{standard:225,airstrip:158,wlt:113,business:68}, cost:32000, extras:[], safety:'med',
+    tips:{pt:'Plushies raros e exclusivos de alto valor. Voo muito longo.',en:'Rare and exclusive high-value Plushies. Very long flight.'} },
+  chi: { n:{pt:'China',en:'China'}, city:'Beijing', flag:'🇨🇳',
+    ft:{standard:242,airstrip:169,wlt:121,business:72}, cost:35000, extras:['fortune'], safety:'med',
+    tips:{pt:'Leitora da Fortuna ($75k): mostra % progresso para o próximo nível.',en:'Fortune Teller ($75k): reveals % progress to next level.'} },
+  uae: { n:{pt:'Dubai (UAE)',en:'Dubai (UAE)'}, city:'Dubai', flag:'🇦🇪',
+    ft:{standard:271,airstrip:190,wlt:135,business:81}, cost:32000, extras:[], safety:'med',
+    tips:{pt:'Items de luxo e contraband exclusivo. Muito lucrativo.',en:'Luxury items and exclusive contraband. Very profitable.'} },
+  sou: { n:{pt:'África do Sul',en:'South Africa'}, city:'Johannesburg', flag:'🇿🇦',
+    ft:{standard:297,airstrip:208,wlt:149,business:89}, cost:40000, extras:['hunt'], safety:'med',
+    tips:{pt:'Caça de animais: cash, XP e honors raros. Voo mais longo do jogo.',en:'Animal hunting: cash, XP and rare honors. Longest flight in game.'} }
+};
+const cname = c => CTRY[c?.toLowerCase()]?.n[App.lang.current] || c || '?';
+const cflag = c => CTRY[c?.toLowerCase()]?.flag || '🌍';
+const cflightMin = (c, type) => CTRY[c?.toLowerCase()]?.ft[type] || 0;
+
+/* ══════════════════════════════════════════════════════════════
+   APP NAMESPACE
+══════════════════════════════════════════════════════════════ */
+const App = {};
+
+/* ── State ── */
+App.state = {
+  stocks: {},        // YATA stocks per country
+  items: {},         // Torn items {id: {name, type, mv}}
+  yataTs: 0,         // YATA timestamp
+  favs: [],          // favourite keys
+  activeDest: 'all', // active tab
+  loaded: false,
+  loading: false,
+  travelData: null,
+  pollTimer: null,
+  cdTimer: null,
+  notifOn: false,
+  n3done: false,
+  n1done: false,
+  pwaPrompt: null,
+  abroadDest: null,
+  peopleRaw: [],     // raw people data for filter/sort
 };
 
-/* ═══════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════ */
-let S = {
-  user:null, stocks:{}, items:{}, yataTs:0,
-  favs:[], activeDest:'all', loaded:false, loading:false,
-  tdata:null, pollTimer:null,
-  notifOn:false, n3done:false, n1done:false,
-  cdTimer:null,
-};
+/* ══════════════════════════════════════════════════════════════
+   LANGUAGE MODULE
+══════════════════════════════════════════════════════════════ */
+App.lang = {
+  current: 'pt',
+  strings: {},
 
-/* ═══════════════════════════════════════════════
-   STORAGE
-═══════════════════════════════════════════════ */
-const LS={
-  g:k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}},
-  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
-  d:k=>localStorage.removeItem(k)
-};
+  async load(code) {
+    try {
+      const r = await fetch(`locales/${code}.json`);
+      if (!r.ok) throw new Error();
+      this.strings = await r.json();
+    } catch {
+      // Fallback inline strings
+      this.strings = code === 'en' ? App.lang._fallbackEN() : App.lang._fallbackPT();
+    }
+    this.current = code;
+    Store.set('tf_lang', code);
+    document.documentElement.lang = code;
+    this.apply();
+  },
 
-/* ═══════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════ */
-function init(){
-  S.favs = LS.g('tf_favs')||[];
-  S.notifOn = LS.g('tf_notif')||false;
-  renderSavedLogin();
-  const last = LS.g('tf_lastuser');
-  if(last) loginAs(last, false);
-}
+  t(key, vars = {}) {
+    let s = this.strings[key] || key;
+    for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);
+    return s;
+  },
 
-/* ═══════════════════════════════════════════════
-   AUTH
-═══════════════════════════════════════════════ */
-async function doLogin(){
-  const name = G('in-name').value.trim();
-  const key  = G('in-key').value.trim();
-  const err  = G('lerr');
-  err.classList.add('hidden');
-  if(!name){ showErr(err,'Escreve um nome.'); return; }
-  if(!key||key.length<10){ showErr(err,'API Key inválida (16 caract.).'); return; }
-  setBtn('btn-login','⏳ A verificar…',true);
-  try{
-    const r = await fetch(T_USER_BASIC(key));
-    const d = await r.json();
-    if(d.error){ showErr(err,`Torn [${d.error.code}]: ${d.error.error}`); return; }
-    const acct = {name, tornName:d.name||name, apiKey:key, tornId:d.player_id};
-    upsertAcct(acct);
-    loginAs(acct, true);
-  }catch(e){ showErr(err,'Erro de rede.'); }
-  finally{ setBtn('btn-login','→ Entrar',false); }
-}
-
-function loginAs(acct, fresh){
-  S.user = acct;
-  S.favs = LS.g('tf_favs')||[];
-  LS.s('tf_lastuser', acct);
-  G('page-login').style.display = 'none';
-  G('page-app').style.display   = 'flex';
-  G('uname').textContent        = acct.tornName||acct.name;
-  G('s-name').textContent       = acct.tornName||acct.name;
-  G('s-key').textContent        = maskKey(acct.apiKey);
-  G('ntog-chk').checked         = S.notifOn;
-  G('notif-topbar-btn').className = 'notif-btn'+(S.notifOn?' on':'');
-  buildDestTabs();
-  buildGuide();
-  buildTripDests();
-  renderSettingsAccts();
-
-  const cs = LS.g('tf_stocks'), ci = LS.g('tf_items');
-  if(cs && ci && !fresh){
-    S.stocks=cs.data; S.yataTs=cs.ts; S.items=ci; S.loaded=true;
-    updateCounts(); buildCatFilter();
-    setStatus('dy','Cache local · '+timeAgo(cs.ts*1000)+' · clica Atualizar');
-    renderMarket(); renderPlanner();
-  } else { loadData(); }
-
-  startPoll();
-}
-
-function doLogout(){
-  S.user=null; S.loaded=false;
-  clearInterval(S.pollTimer); clearInterval(S.cdTimer);
-  LS.d('tf_lastuser');
-  G('page-app').style.display  = 'none';
-  G('page-login').style.display= 'flex';
-  G('in-key').value=''; G('in-name').value='';
-}
-
-function upsertAcct(a){
-  const arr=LS.g('tf_accts')||[];
-  const i=arr.findIndex(x=>x.apiKey===a.apiKey);
-  if(i>=0)arr[i]=a; else arr.push(a);
-  LS.s('tf_accts',arr);
-  renderSavedLogin();
-}
-function delAcct(i){
-  const arr=LS.g('tf_accts')||[];
-  arr.splice(i,1); LS.s('tf_accts',arr);
-  renderSavedLogin(); renderSettingsAccts();
-}
-function clearAllAccts(){
-  if(!confirm('Apagar todas as contas guardadas?'))return;
-  LS.s('tf_accts',[]); renderSavedLogin(); renderSettingsAccts();
-  toast('Contas apagadas','ok');
-}
-function renderSavedLogin(){
-  const arr=LS.g('tf_accts')||[];
-  G('saved-sec').style.display = arr.length?'':'none';
-  G('saved-list').innerHTML = arr.map((a,i)=>`
-    <div class="arow" onclick="loginAs(${j(a)},false)">
-      <div><div class="ar-name">${e(a.tornName||a.name)}</div><div class="ar-key">${maskKey(a.apiKey)}</div></div>
-      <button class="adel" onclick="event.stopPropagation();delAcct(${i})">✕</button>
-    </div>`).join('');
-}
-function renderSettingsAccts(){
-  const arr=LS.g('tf_accts')||[];
-  G('s-saved').innerHTML = arr.length
-    ? arr.map((a,i)=>`
-      <div class="arow" style="cursor:default">
-        <div><div class="ar-name">${e(a.tornName||a.name)}</div><div class="ar-key">${maskKey(a.apiKey)}</div></div>
-        <button class="adel" onclick="delAcct(${i});renderSettingsAccts()">✕</button>
-      </div>`).join('')
-    : '<p style="font-size:.77rem;color:var(--muted)">Nenhuma conta guardada.</p>';
-}
-
-/* ═══════════════════════════════════════════════
-   DATA LOADING
-═══════════════════════════════════════════════ */
-async function loadData(){
-  if(S.loading||!S.user)return;
-  S.loading=true;
-  G('rfbtn').disabled=true;
-  G('rsp').classList.add('spinning');
-  setStatus('dy','A carregar stocks YATA…');
-  showSkel();
-  try{
-    /* 1 — YATA stocks */
-    const yr = await fetch(YATA_URL);
-    if(!yr.ok) throw new Error(`YATA HTTP ${yr.status}`);
-    const yd = await yr.json();
-    if(!yd.stocks) throw new Error('YATA: formato inesperado');
-    S.stocks=yd.stocks; S.yataTs=yd.timestamp;
-    LS.s('tf_stocks',{data:yd.stocks,ts:yd.timestamp});
-    setStatus('dy','Stocks OK · A carregar items Torn API…');
-
-    /* 2 — Torn items */
-    const tr = await fetch(T_ITEMS(S.user.apiKey));
-    const td = await tr.json();
-    if(td.error) throw new Error(`Torn [${td.error.code}]: ${td.error.error}`);
-    S.items={};
-    Object.entries(td.items||{}).forEach(([id,it])=>{
-      S.items[id]={name:it.name,type:it.type,mv:it.market_value||0};
+  async set(code) {
+    await this.load(code);
+    // Update lang buttons everywhere
+    ['pt', 'en'].forEach(c => {
+      document.querySelectorAll(`.lbtn, #lb-${c}`).forEach(b => {
+        const isTarget = b.textContent.includes(c.toUpperCase()) || b.textContent.includes(c === 'pt' ? 'Português' : 'English');
+        if (isTarget) b.className = 'lbtn' + (c === code ? ' on' : '');
+      });
     });
-    LS.s('tf_items',S.items);
-    S.loaded=true;
-    updateCounts(); buildCatFilter();
-    const tot=Object.values(S.stocks).reduce((n,c)=>n+(c.stocks||[]).length,0);
-    setStatus('dg',`${tot} produtos · ${Object.keys(S.stocks).length} destinos · YATA: ${timeAgo(S.yataTs*1000)}`);
-    renderMarket(); renderPlanner();
-    toast('Dados atualizados ✓','ok');
-  }catch(ex){
-    console.error(ex);
-    setStatus('dr',`Erro: ${ex.message}`);
-    G('marea').innerHTML=errState(ex.message);
-    toast('Erro ao carregar','err');
-  }finally{
-    S.loading=false; G('rfbtn').disabled=false; G('rsp').classList.remove('spinning');
+    ['lb-pt','lb-en'].forEach(id => {
+      const b = G(id); if (!b) return;
+      b.className = 'lbtn' + (id === 'lb-'+code ? ' on' : '');
+    });
+    if (App.state.loaded) { App.market.buildTabs(); App.market.buildCatFilter(); App.market.render(); App.planner.render(); }
+    App.guide.build();
+    App.trip.buildDests();
+    if (App.state.travelData) App.monitor.applyUI(App.state.travelData);
+    toast(code === 'pt' ? '🇵🇹 Português' : '🇬🇧 English', 'info');
+  },
+
+  apply() {
+    const t = k => this.t(k);
+    const set = (id, val, html = false) => { const e = G(id); if (e) html ? (e.innerHTML = val) : (e.textContent = val); };
+    set('l-sub', t('app_subtitle'));
+    set('l-title', t('login_title'));
+    set('l-hint', t('login_hint'), true);
+    set('l-nl', t('label_account_name'));
+    set('l-kl', t('label_api_key'));
+    set('l-btn', t('btn_login'));
+    set('l-sh', t('label_saved_accounts'));
+    set('t-logout', t('btn_logout'));
+    set('nt-mkt', t('nav_market')); set('nt-mon', t('nav_monitor'));
+    set('nt-int', t('nav_intelligence')); set('nt-gd', t('nav_guide'));
+    set('nt-tr', t('nav_trip')); set('nt-fv', t('nav_favorites')); set('nt-st', t('nav_settings'));
+    set('bn-mkt', t('nav_market')); set('bn-mon', t('nav_monitor'));
+    set('bn-int', 'Intel'); set('bn-gd', t('nav_guide'));
+    set('bn-tr', t('nav_trip')); set('bn-fv', t('nav_favorites')); set('bn-st', t('nav_settings'));
+    set('v-mkt-s', t('market_sub'));
+    set('v-mon-t', t('monitor_title')); set('v-mon-s', t('monitor_sub'));
+    set('v-int-t', t('intelligence_title')); set('v-int-s', t('intelligence_sub'));
+    set('v-gd-t', t('guide_title')); set('v-gd-s', t('guide_sub'));
+    set('v-tr-t', t('trip_title')); set('v-tr-s', t('trip_sub'));
+    set('v-fv-t', t('favorites_title'));
+    set('v-st-t', t('settings_title'));
+    set('so-ca', t('sort_price_asc')); set('so-cd', t('sort_price_desc'));
+    set('so-pd', t('sort_profit_desc')); set('so-qd', t('sort_stock_desc')); set('so-na', t('sort_name_asc'));
+    set('t-ref', t('btn_refresh')); set('t-upd', t('btn_refresh'));
+    set('t-int-ref', t('btn_refresh'));
+    set('t-ts', t('monitor_travel_status'));
+    set('ntog-lbl', App.state.notifOn ? t('monitor_notif_on') : t('monitor_notif_label'));
+    set('people-title', t('people_title')); set('t-ppl-wait', t('people_no_travel'));
+    set('t-log', t('monitor_poll_log'));
+    set('t-top-items', t('intel_top10_items')); set('t-top-dests', t('intel_top10_dests'));
+    set('t-stock-alerts', t('intel_stock_alert'));
+    set('t-cfg', t('trip_configure')); set('t-dl', t('label_destination'));
+    set('t-fl', t('label_flight_type')); set('t-gl', t('label_goal'));
+    set('ft-s', t('flight_standard')); set('ft-a', t('flight_airstrip'));
+    set('ft-w', t('flight_wlt')); set('ft-b', t('flight_business'));
+    set('g-i', t('goal_items')); set('g-r', t('goal_rehab')); set('g-b', t('goal_bank'));
+    set('g-fo', t('goal_fortune')); set('g-h', t('goal_hunt'));
+    set('t-gen', t('btn_generate'));
+    set('t-ds', t('trip_dest_summary')); set('t-t15', t('trip_top15'));
+    set('t-ca', t('label_current_account')); set('t-tn', t('label_torn_name'));
+    set('t-akl', t('label_api_key')); set('t-sav', t('label_saved_accounts'));
+    set('t-da', t('settings_del_all'));
+    set('t-cache', t('settings_cache')); set('t-cc', t('settings_cache_clear'));
+    set('t-ccs', t('settings_cache_sub')); set('t-ccb', t('btn_clear'));
+    set('t-cf', t('settings_favs_clear')); set('t-cfb', t('btn_clear'));
+    set('t-lang', t('settings_lang'));
+    set('t-inst', t('settings_install')); set('t-inst-d', t('settings_install_desc'));
+    set('t-inst-b', t('btn_install')); set('t-inst-s', t('settings_install_steps'), true);
+    set('t-about', t('settings_about'));
+    set('ib-txt', t('install_banner'), true);
+    set('ib-install', t('btn_install').replace('⬇ ',''));
+    // Placeholders
+    const ms = G('ms'); if (ms) ms.placeholder = '🔍 ' + t('label_search');
+    const fs = G('fs'); if (fs) fs.placeholder = '🔍 ' + t('favorites_search');
+    const ps = G('people-search'); if (ps) ps.placeholder = '🔍 ' + t('people_search');
+    const mc = G('mc'); if (mc && mc.options[0]) mc.options[0].textContent = t('label_all_categories');
+  },
+
+  _fallbackPT() {
+    return { app_subtitle:'Foreign Stock · Travel Monitor · Trip Planner', login_title:'Entrar na conta',
+      login_hint:'Recomendado: <strong>Full Access API Key</strong>.<br>Gera em <a href="https://www.torn.com/preferences.php#tab=api" target="_blank">torn.com → Preferences → API</a>',
+      label_account_name:'Nome da conta', label_api_key:'API Key', btn_login:'Entrar', btn_logout:'Sair',
+      btn_refresh:'Atualizar', btn_generate:'Gerar Plano', btn_clear:'Limpar', btn_install:'⬇ Instalar App',
+      label_saved_accounts:'Contas guardadas', label_current_account:'Conta atual', label_torn_name:'Nome Torn',
+      label_destination:'Destino', label_flight_type:'Tipo de voo', label_goal:'Objetivo',
+      label_search:'Pesquisar produto...', label_all_categories:'Todas as categorias', favorites_search:'Filtrar favoritos...',
+      nav_market:'Mercado', nav_monitor:'Monitor', nav_intelligence:'Intelligence',
+      nav_guide:'Destinos', nav_trip:'Plano de Voo', nav_favorites:'Favoritos', nav_settings:'Conta',
+      sort_price_asc:'Preço ↑', sort_price_desc:'Preço ↓', sort_profit_desc:'Lucro ↓', sort_stock_desc:'Stock ↓', sort_name_asc:'Nome A–Z',
+      sort_level_desc:'Nível ↓', sort_activity_desc:'Atividade ↓',
+      flight_standard:'Standard', flight_airstrip:'Airstrip', flight_wlt:'WLT Benefit', flight_business:'Business Class',
+      goal_items:'🛒 Comprar items', goal_rehab:'💊 Reabilitação', goal_bank:'🏦 Banco Offshore', goal_fortune:'🔮 Leitora da Fortuna', goal_hunt:'🦁 Caça de Animais',
+      market_title:'Foreign Stocks', market_sub:'YATA crowd-sourced + Torn API', market_profit_label:'de lucro',
+      market_in_stock:' em stock', market_no_stock:'Sem stock', market_torn_price:'Mercado Torn:', market_no_results:'Nenhum produto encontrado',
+      monitor_title:'Monitor de Viagem', monitor_sub:'Auto-poll 30s · Notificação 3min antes',
+      monitor_travel_status:'Estado de viagem', monitor_at_home:'Em casa (Torn City)', monitor_flying_to:'A voar para',
+      monitor_abroad:'No estrangeiro', monitor_no_travel:'Sem viagem ativa.', monitor_departed:'Partiu',
+      monitor_eta:'Chegada est.', monitor_remaining:'Resta', monitor_location:'Localização', monitor_status:'Estado',
+      monitor_notif_label:'Notificar 3min antes', monitor_notif_on:'✅ Notificações ativas', monitor_notif_denied:'Permissão negada.',
+      monitor_notif_3min_title:'✈ TornFlight — 3 minutos!', monitor_notif_3min_body:'A chegar a {dest}! Prepara-te.',
+      monitor_notif_1min_title:'✈ TornFlight — 1 minuto!', monitor_notif_1min_body:'Quase a chegar a {dest}!',
+      monitor_poll_log:'Log de polling',
+      people_title:'Jogadores no destino', people_loading:'A carregar jogadores...', people_none:'Nenhum jogador YATA visível neste destino.',
+      people_sub:' viajante(s) YATA', people_note:'Dados YATA · Theater 10★ players ficam ocultos.', people_search:'Pesquisar jogador...', people_no_travel:'Sem viagem ativa.',
+      intelligence_title:'Intelligence', intelligence_sub:'Análise de mercado · Melhores oportunidades',
+      intel_best_profit:'Melhor Lucro', intel_best_item:'Melhor Item', intel_best_dest:'Melhor Destino',
+      intel_profit_min:'Lucro/min', intel_profit_hour:'Lucro/hora', intel_yata_update:'Última atualização YATA',
+      intel_top10_items:'Top 10 — Itens mais lucrativos', intel_top10_dests:'Top 10 — Destinos', intel_stock_alert:'Alertas de Stock',
+      guide_title:'Guia de Destinos', guide_sub:'Extras exclusivos · Tempos de voo · Segurança · Dicas',
+      guide_flight_times:'Tempos de voo', guide_extras:'Extras exclusivos', guide_safety:'Segurança',
+      guide_tip:'Dica', guide_flight_cost:'Custo ida',
+      guide_safe:'✅ Relativamente seguro', guide_med:'⚠ Cuidado normal', guide_danger:'🚨 Muggers frequentes',
+      trip_title:'Plano de Voo', trip_sub:'Timeline completa com análise de risco', trip_configure:'Configurar viagem',
+      trip_risk:'Risco', trip_risk_low:'Baixo 🟢', trip_risk_med:'Médio 🟡', trip_risk_high:'Alto 🔴',
+      trip_roundtrip:'Tempo ida+volta', trip_total_cost:'Custo total', trip_flight_type:'Tipo de voo',
+      trip_invuln:'✈ Invulnerável durante o voo', trip_grace:'🛡 Grace period: 15s',
+      trip_dest_summary:'Resumo por destino', trip_top15:'Top 15 — mais baratos com stock',
+      favorites_title:'Favoritos', favorites_no_favs:'Sem favoritos ainda.<br>Vai ao Mercado e clica ☆.',
+      fav_added:'⭐ Adicionado', fav_removed:'Removido',
+      settings_title:'Conta', settings_cache:'Cache', settings_cache_clear:'Limpar cache',
+      settings_cache_sub:'Re-download YATA + Torn API', settings_favs_clear:'Limpar favoritos',
+      settings_del_all:'🗑 Apagar todas as contas', settings_lang:'Idioma / Language',
+      settings_install:'Instalar como App', settings_install_desc:'Adiciona ao ecrã inicial para usar como app nativa.',
+      settings_install_steps:'<b>iOS Safari:</b> Partilhar → Adicionar ao Ecrã Inicial<br><b>Android Chrome:</b> Menu ⋮ → Adicionar ao ecrã inicial<br><b>Desktop Chrome/Edge:</b> ícone ⊕ na barra de endereço',
+      settings_about:'Sobre fontes de dados', install_banner:'<b>📱</b> Instalar app',
+      status_loading:'A carregar...', status_cache:'Cache · {ago} · clica Atualizar',
+      status_ok:'{total} produtos · YATA: {ago}', status_error:'Erro', status_updated:'Estado atualizado',
+      confirm_del_accounts:'Apagar todas as contas?', confirm_clear_favs:'Limpar todos os favoritos?',
+      error_name:'Escreve um nome.', error_key:'API Key inválida.', error_network:'Erro de rede.',
+      data_updated:'Dados atualizados ✓', data_error:'Erro ao carregar', cache_cleared:'Cache limpo',
+      favs_cleared:'Favoritos limpos', accounts_cleared:'Contas apagadas', no_data:'Sem dados.',
+      time_now:'agora', time_min:'m', time_hour:'h', time_day:'d',
+      people_loading:'A carregar jogadores...'
+    };
+  },
+
+  _fallbackEN() {
+    return { app_subtitle:'Foreign Stock · Travel Monitor · Trip Planner', login_title:'Log in',
+      login_hint:'Recommended: <strong>Full Access API Key</strong>.<br>Generate at <a href="https://www.torn.com/preferences.php#tab=api" target="_blank">torn.com → Preferences → API</a>',
+      label_account_name:'Account name', label_api_key:'API Key', btn_login:'Log in', btn_logout:'Log out',
+      btn_refresh:'Refresh', btn_generate:'Generate Plan', btn_clear:'Clear', btn_install:'⬇ Install App',
+      label_saved_accounts:'Saved accounts', label_current_account:'Current account', label_torn_name:'Torn name',
+      label_destination:'Destination', label_flight_type:'Flight type', label_goal:'Goal',
+      label_search:'Search product...', label_all_categories:'All categories', favorites_search:'Filter favourites...',
+      nav_market:'Market', nav_monitor:'Monitor', nav_intelligence:'Intelligence',
+      nav_guide:'Destinations', nav_trip:'Trip Plan', nav_favorites:'Favourites', nav_settings:'Account',
+      sort_price_asc:'Price ↑', sort_price_desc:'Price ↓', sort_profit_desc:'Profit ↓', sort_stock_desc:'Stock ↓', sort_name_asc:'Name A–Z',
+      sort_level_desc:'Level ↓', sort_activity_desc:'Activity ↓',
+      flight_standard:'Standard', flight_airstrip:'Airstrip', flight_wlt:'WLT Benefit', flight_business:'Business Class',
+      goal_items:'🛒 Buy items', goal_rehab:'💊 Rehab', goal_bank:'🏦 Offshore Bank', goal_fortune:'🔮 Fortune Teller', goal_hunt:'🦁 Animal Hunting',
+      market_title:'Foreign Stocks', market_sub:'YATA crowd-sourced + Torn API', market_profit_label:'profit',
+      market_in_stock:' in stock', market_no_stock:'Out of stock', market_torn_price:'Torn Market:', market_no_results:'No products found',
+      monitor_title:'Travel Monitor', monitor_sub:'Auto-poll 30s · 3min arrival notification',
+      monitor_travel_status:'Travel status', monitor_at_home:'At home (Torn City)', monitor_flying_to:'Flying to',
+      monitor_abroad:'Abroad', monitor_no_travel:'No active travel.', monitor_departed:'Departed',
+      monitor_eta:'ETA', monitor_remaining:'Remaining', monitor_location:'Location', monitor_status:'Status',
+      monitor_notif_label:'Notify 3min before arriving', monitor_notif_on:'✅ Notifications active', monitor_notif_denied:'Permission denied.',
+      monitor_notif_3min_title:'✈ TornFlight — 3 minutes!', monitor_notif_3min_body:'Arriving at {dest}! Get ready.',
+      monitor_notif_1min_title:'✈ TornFlight — 1 minute!', monitor_notif_1min_body:'Almost at {dest}!',
+      monitor_poll_log:'Polling log',
+      people_title:'Players at destination', people_loading:'Loading players...', people_none:'No YATA players visible at this destination.',
+      people_sub:' YATA traveller(s)', people_note:'YATA data · Theater 10★ players are hidden.', people_search:'Search player...', people_no_travel:'No active travel.',
+      intelligence_title:'Intelligence', intelligence_sub:'Market analysis · Best opportunities',
+      intel_best_profit:'Best Profit', intel_best_item:'Best Item', intel_best_dest:'Best Destination',
+      intel_profit_min:'Profit/min', intel_profit_hour:'Profit/hour', intel_yata_update:'Last YATA update',
+      intel_top10_items:'Top 10 — Most profitable items', intel_top10_dests:'Top 10 — Destinations', intel_stock_alert:'Stock Alerts',
+      guide_title:'Destination Guide', guide_sub:'Exclusive extras · Flight times · Safety · Tips',
+      guide_flight_times:'Flight times', guide_extras:'Exclusive extras', guide_safety:'Safety',
+      guide_tip:'Tip', guide_flight_cost:'One-way cost',
+      guide_safe:'✅ Relatively safe', guide_med:'⚠ Normal caution', guide_danger:'🚨 Frequent muggers',
+      trip_title:'Trip Plan', trip_sub:'Full timeline with risk analysis', trip_configure:'Configure trip',
+      trip_risk:'Risk', trip_risk_low:'Low 🟢', trip_risk_med:'Medium 🟡', trip_risk_high:'High 🔴',
+      trip_roundtrip:'Round-trip time', trip_total_cost:'Total cost', trip_flight_type:'Flight type',
+      trip_invuln:'✈ Invulnerable during flight', trip_grace:'🛡 Grace period: 15s',
+      trip_dest_summary:'Destination summary', trip_top15:'Top 15 — cheapest with stock',
+      favorites_title:'Favourites', favorites_no_favs:'No favourites yet.<br>Go to Market and click ☆.',
+      fav_added:'⭐ Added', fav_removed:'Removed',
+      settings_title:'Account', settings_cache:'Cache', settings_cache_clear:'Clear cache',
+      settings_cache_sub:'Force re-download YATA + Torn API', settings_favs_clear:'Clear favourites',
+      settings_del_all:'🗑 Delete all accounts', settings_lang:'Language / Idioma',
+      settings_install:'Install as App', settings_install_desc:'Add to home screen for a native app experience.',
+      settings_install_steps:'<b>iOS Safari:</b> Share → Add to Home Screen<br><b>Android Chrome:</b> Menu ⋮ → Add to home screen<br><b>Desktop Chrome/Edge:</b> ⊕ icon in address bar',
+      settings_about:'About data sources', install_banner:'<b>📱</b> Install app',
+      status_loading:'Loading...', status_cache:'Cache · {ago} · click Refresh',
+      status_ok:'{total} products · YATA: {ago}', status_error:'Error', status_updated:'Status updated',
+      confirm_del_accounts:'Delete all saved accounts?', confirm_clear_favs:'Clear all favourites?',
+      error_name:'Enter a name.', error_key:'Invalid API Key.', error_network:'Network error.',
+      data_updated:'Data updated ✓', data_error:'Error loading data', cache_cleared:'Cache cleared',
+      favs_cleared:'Favourites cleared', accounts_cleared:'Accounts deleted', no_data:'No data.',
+      time_now:'now', time_min:'m', time_hour:'h', time_day:'d',
+      people_loading:'Loading players...'
+    };
   }
-}
+};
+const t = k => App.lang.t(k);
 
-/* ═══════════════════════════════════════════════
-   TRAVEL MONITOR
-═══════════════════════════════════════════════ */
-function startPoll(){
-  pollNow();
-  clearInterval(S.pollTimer);
-  S.pollTimer = setInterval(()=>{
-    const st = S.tdata?.status?.state;
-    if(!S.tdata || st==='Traveling' || st==='Abroad') pollNow();
-  }, 30000);
-}
+/* ══════════════════════════════════════════════════════════════
+   AUTH MODULE
+══════════════════════════════════════════════════════════════ */
+App.auth = {
+  async login() {
+    const name = G('in-n').value.trim();
+    const key  = G('in-k').value.trim();
+    const err  = G('lerr');
+    err.classList.add('hidden');
+    if (!name) { showErr(err, t('error_name')); return; }
+    if (!key || key.length < 10) { showErr(err, t('error_key')); return; }
+    setBtn('btn-login', '⏳…', true);
+    try {
+      const r = await fetch(`https://api.torn.com/user/?selections=basic&key=${key}&_=${Date.now()}`);
+      const d = await r.json();
+      if (d.error) { showErr(err, `Torn [${d.error.code}]: ${d.error.error}`); return; }
+      const acct = { name, tornName: d.name || name, apiKey: key, tornId: d.player_id };
+      this._upsert(acct);
+      this._loginAs(acct, true);
+    } catch { showErr(err, t('error_network')); }
+    finally { setBtn('btn-login', '→ ' + t('btn_login'), false); }
+  },
 
-async function pollNow(){
-  if(!S.user)return;
-  G('psp').classList.add('spinning');
-  try{
-    const r = await fetch(T_TRAVEL(S.user.apiKey));
-    const d = await r.json();
-    if(d.error){ logPoll(`❌ API: ${d.error.error}`,'err'); return; }
-    S.tdata = d;
-    applyTravelUI(d);
-    logPoll(`✓ ${hhmm()} — ${d.status?.state||'?'}`,'ok');
-  }catch(ex){ logPoll(`⚠ Rede: ${ex.message}`,'err'); }
-  finally{ G('psp').classList.remove('spinning'); }
-}
+  _loginAs(acct, fresh) {
+    App.state.favs = Store.get('tf_favs') || [];
+    App.state.notifOn = Store.get('tf_notif') || false;
+    Store.set('tf_lastuser', { name: acct.name, tornName: acct.tornName, apiKey: acct.apiKey, tornId: acct.tornId });
+    G('pLogin').style.display = 'none';
+    G('pApp').style.display = 'flex';
+    G('uname').textContent = acct.tornName || acct.name;
+    G('s-name').textContent = acct.tornName || acct.name;
+    G('s-key').textContent = maskKey(acct.apiKey);
+    G('ntog').checked = App.state.notifOn;
+    G('nfbtn-top').className = 'nfbtn' + (App.state.notifOn ? ' on' : '');
+    App.lang.apply();
+    App.market.buildTabs();
+    App.guide.build();
+    App.trip.buildDests();
+    App.auth._renderSavedSettings();
 
-function applyTravelUI(d){
-  const state   = d.status?.state||'Okay';
-  const travel  = d.travel||{};
-  const bigdot  = G('bigdot');
-  const lbl     = G('ts-lbl');
-  const sub     = G('ts-sub');
-  const cdEl    = G('ts-cd');
-  const bwEl    = G('ts-bw');
-  const rowsEl  = G('ts-rows');
-  const tabBar  = G('tab');
+    const cs = Store.get('tf_stocks'), ci = Store.get('tf_items');
+    if (cs && ci && !fresh) {
+      App.state.stocks = cs.data; App.state.yataTs = cs.ts; App.state.items = ci;
+      App.state.loaded = true;
+      App.market.updateCounts(); App.market.buildCatFilter();
+      setStatus('dy', t('status_cache').replace('{ago}', timeAgo(cs.ts * 1000)));
+      App.market.render(); App.planner.render();
+    } else { App.data.load(); }
 
-  if(state==='Traveling'){
-    const dest     = travel.destination||'';
-    const timeLeft = travel.time_left||0;
-    const departed = travel.departed||0;
-    const arrived  = travel.timestamp||0;
-    const total    = arrived>0?arrived-departed:0;
+    App.monitor.startPoll();
+  },
 
-    bigdot.className = 'ts-bigdot tsd-traveling';
-    lbl.textContent  = `A voar para ${cname(dest)}`;
-    sub.textContent  = `Saiu: ${fmtTs(departed*1000)}`;
-    cdEl.classList.remove('hidden');
-    bwEl.classList.remove('hidden');
-    startCountdown(timeLeft, total, cdEl);
-    rowsEl.innerHTML =
-      irow('Destino',   cflag(dest)+' '+cname(dest))+
-      irow('Partiu',    fmtTs(departed*1000))+
-      irow('Chegada est.', fmtTs(arrived*1000))+
-      irow('Resta',     fmtDur(timeLeft));
-    // Top bar
-    tabBar.classList.add('show');
-    G('tab-text').innerHTML = `A voar para <b>${cname(dest)}</b>`;
-    G('tab-dest').textContent = cflag(dest);
-    // Notifications
-    checkNotifs(timeLeft, dest);
-    // People
-    fetchPeople(dest);
+  logout() {
+    clearInterval(App.state.pollTimer); clearInterval(App.state.cdTimer);
+    Store.del('tf_lastuser');
+    G('pApp').style.display = 'none'; G('pLogin').style.display = 'flex';
+    G('in-k').value = ''; G('in-n').value = '';
+    App.state.travelData = null; App.state.loaded = false;
+    G('tbar').classList.remove('show');
+  },
+
+  _upsert(a) {
+    const arr = Store.get('tf_accts') || [];
+    const i = arr.findIndex(x => x.apiKey === a.apiKey);
+    if (i >= 0) arr[i] = a; else arr.push(a);
+    Store.set('tf_accts', arr);
+    this._renderSavedLogin();
+  },
+
+  _del(i) {
+    const arr = Store.get('tf_accts') || []; arr.splice(i, 1);
+    Store.set('tf_accts', arr); this._renderSavedLogin(); this._renderSavedSettings();
+  },
+
+  clearAll() {
+    if (!confirm(t('confirm_del_accounts'))) return;
+    Store.set('tf_accts', []); this._renderSavedLogin(); this._renderSavedSettings();
+    toast(t('accounts_cleared'), 'ok');
+  },
+
+  _renderSavedLogin() {
+    const arr = Store.get('tf_accts') || [];
+    G('saved-sec').style.display = arr.length ? '' : 'none';
+    G('saved-list').innerHTML = arr.map((a, i) => `
+      <div class="arow" onclick="App.auth._loginAs(${j(a)}, false)">
+        <div><div class="ar-n">${e(a.tornName||a.name)}</div><div class="ar-k">${maskKey(a.apiKey)}</div></div>
+        <button class="adel" onclick="event.stopPropagation();App.auth._del(${i})" aria-label="Delete">✕</button>
+      </div>`).join('');
+  },
+
+  _renderSavedSettings() {
+    const arr = Store.get('tf_accts') || [];
+    G('s-saved').innerHTML = arr.length
+      ? arr.map((a, i) => `
+        <div class="arow" style="cursor:default">
+          <div><div class="ar-n">${e(a.tornName||a.name)}</div><div class="ar-k">${maskKey(a.apiKey)}</div></div>
+          <button class="adel" onclick="App.auth._del(${i});App.auth._renderSavedSettings()" aria-label="Delete">✕</button>
+        </div>`).join('')
+      : `<p style="font-size:.77rem;color:var(--muted)">${t('no_data')}</p>`;
   }
-  else if(state==='Abroad'){
-    const dest = travel.destination||'';
-    bigdot.className = 'ts-bigdot tsd-abroad';
-    lbl.textContent  = `No estrangeiro`;
-    sub.textContent  = `${cflag(dest)} ${cname(dest)}`;
-    cdEl.classList.add('hidden');
-    bwEl.classList.add('hidden');
-    clearInterval(S.cdTimer);
-    rowsEl.innerHTML = irow('Localização', cflag(dest)+' '+cname(dest));
-    tabBar.classList.remove('show');
-    fetchPeople(dest);
-    // reset notif flags for next trip
-    S.n3done=false; S.n1done=false;
-  }
-  else {
-    bigdot.className = 'ts-bigdot tsd-home';
-    lbl.textContent  = 'Em casa (Torn City)';
-    sub.textContent  = 'Nenhuma viagem ativa.';
-    cdEl.classList.add('hidden');
-    bwEl.classList.add('hidden');
-    clearInterval(S.cdTimer);
-    rowsEl.innerHTML = irow('Estado','🏠 Em casa');
-    tabBar.classList.remove('show');
-    G('people-title').textContent = 'Jogadores no destino';
-    G('people-area').innerHTML = '<div class="empty"><div class="ei">🏠</div><p>Não estás a viajar.</p></div>';
-    S.n3done=false; S.n1done=false;
-  }
-}
+};
 
-/* countdown */
-let _cdLeft=0, _cdTotal=0;
-function startCountdown(tl, total, cdEl){
-  clearInterval(S.cdTimer);
-  _cdLeft=tl; _cdTotal=total;
-  function tick(){
-    if(_cdLeft<0) _cdLeft=0;
-    cdEl.textContent = fmtDur(_cdLeft);
-    G('tab-cd').textContent = fmtDur(_cdLeft);
-    if(_cdTotal>0){
-      const pct = Math.max(0,Math.min(100,(1-_cdLeft/_cdTotal)*100));
-      G('ts-bar').style.width = pct+'%';
+/* ══════════════════════════════════════════════════════════════
+   DATA MODULE
+══════════════════════════════════════════════════════════════ */
+App.data = {
+  _apiKey() { return (Store.get('tf_lastuser') || {}).apiKey || ''; },
+
+  async load() {
+    if (App.state.loading) return;
+    const key = this._apiKey(); if (!key) return;
+    App.state.loading = true;
+    G('rfbtn').disabled = true; G('rsp').classList.add('spinning');
+    setStatus('dy', t('status_loading'));
+    App.market.showSkel();
+    try {
+      /* 1 — YATA stocks */
+      const yr = await fetch('https://yata.yt/api/v1/travel/export/');
+      if (!yr.ok) throw new Error(`YATA HTTP ${yr.status}`);
+      const yd = await yr.json();
+      if (!yd.stocks) throw new Error('YATA format error');
+      App.state.stocks = yd.stocks; App.state.yataTs = yd.timestamp;
+      Store.set('tf_stocks', { data: yd.stocks, ts: yd.timestamp });
+
+      /* 2 — Torn items */
+      const tr = await fetch(`https://api.torn.com/torn/?selections=items&key=${key}`);
+      const td = await tr.json();
+      if (td.error) throw new Error(`Torn [${td.error.code}]: ${td.error.error}`);
+      App.state.items = {};
+      Object.entries(td.items || {}).forEach(([id, it]) => {
+        App.state.items[id] = { name: it.name, type: it.type, mv: it.market_value || 0 };
+      });
+      Store.set('tf_items', App.state.items);
+      App.state.loaded = true;
+
+      App.market.updateCounts(); App.market.buildCatFilter();
+      const tot = Object.values(App.state.stocks).reduce((n, c) => n + (c.stocks||[]).length, 0);
+      setStatus('dg', t('status_ok').replace('{total}', tot).replace('{ago}', timeAgo(App.state.yataTs * 1000)));
+      App.market.render(); App.planner.render();
+      toast(t('data_updated'), 'ok');
+    } catch (ex) {
+      console.error(ex); setStatus('dr', ex.message);
+      G('marea').innerHTML = errState(ex.message); toast(t('data_error'), 'err');
+    } finally {
+      App.state.loading = false; G('rfbtn').disabled = false; G('rsp').classList.remove('spinning');
     }
-    if(_cdLeft>0) _cdLeft--;
-  }
-  tick();
-  S.cdTimer = setInterval(tick, 1000);
-}
+  },
 
-/* notifications */
-function checkNotifs(tl, dest){
-  if(!S.notifOn) return;
-  if(tl<=180 && !S.n3done){
-    S.n3done=true;
-    sendNotif('✈ TornFlight — 3 minutos!',`A chegar a ${cname(dest)}! Prepara-te para comprar.`);
-    toast('🔔 Notificação: 3 min para chegar!','info');
-  }
-  if(tl<=60 && !S.n1done){
-    S.n1done=true;
-    sendNotif('✈ TornFlight — 1 minuto!',`Quase a chegar a ${cname(dest)}!`);
-  }
-  if(tl>300){ S.n3done=false; S.n1done=false; }
-}
+  clearCache() {
+    Store.del('tf_stocks'); Store.del('tf_items');
+    App.state.stocks = {}; App.state.items = {}; App.state.loaded = false;
+    App.market.render(); toast(t('cache_cleared'), 'info');
+  },
 
-async function handleNotifChk(){
-  const on = G('ntog-chk').checked;
-  if(on){
-    if(!('Notification' in window)){ toast('Browser sem suporte a notificações','err'); G('ntog-chk').checked=false; return; }
-    const perm = await Notification.requestPermission();
-    if(perm==='granted'){
-      S.notifOn=true; LS.s('tf_notif',true);
-      G('ntog-lbl').textContent='✅ Notificações ativas';
-      G('notif-topbar-btn').className='notif-btn on';
-      toast('Notificações ativadas ✓','ok');
+  allProducts() {
+    const list = [];
+    Object.entries(CTRY).forEach(([code, ci]) => {
+      const d = App.state.stocks[code]; if (!d) return;
+      (d.stocks || []).forEach(s => {
+        const inf = App.state.items[s.id] || {};
+        list.push({
+          key: `${code}:${s.id}`, id: s.id,
+          name: inf.name || s.name || `#${s.id}`,
+          type: inf.type || '—', cost: s.cost, qty: s.quantity, mv: inf.mv || 0,
+          code, cname: ci.n[App.lang.current], cflag: ci.flag,
+          updatedAt: d.update * 1000
+        });
+      });
+    });
+    return list;
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   MARKET MODULE
+══════════════════════════════════════════════════════════════ */
+App.market = {
+  buildTabs() {
+    const L = App.lang.current;
+    let h = `<button class="dtab active" id="tab-all" onclick="App.market.setDest('all')">🌍 ${L==='pt'?'Todos':'All'} <span class="dc" id="cnt-all">—</span></button>`;
+    Object.entries(CTRY).forEach(([code, c]) => {
+      h += `<button class="dtab" id="tab-${code}" onclick="App.market.setDest('${code}')">${c.flag}${c.n[L]}<span class="dc" id="cnt-${code}">—</span></button>`;
+    });
+    G('dtabs').innerHTML = h;
+  },
+
+  setDest(code) {
+    App.state.activeDest = code;
+    document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+    G('tab-' + code)?.classList.add('active');
+    this.render();
+  },
+
+  updateCounts() {
+    let tot = 0;
+    Object.keys(CTRY).forEach(code => {
+      const n = (App.state.stocks[code]?.stocks || []).length; tot += n;
+      const el = G('cnt-' + code); if (el) el.textContent = n;
+    });
+    const el = G('cnt-all'); if (el) el.textContent = tot;
+  },
+
+  buildCatFilter() {
+    const types = new Set();
+    Object.values(App.state.stocks).forEach(d => (d.stocks||[]).forEach(s => {
+      const inf = App.state.items[s.id]; if (inf?.type) types.add(inf.type);
+    }));
+    const sel = G('mc'), cur = sel.value;
+    sel.innerHTML = `<option value="">${t('label_all_categories')}</option>` +
+      [...types].sort().map(ty => `<option value="${ty}"${ty===cur?' selected':''}>${ty}</option>`).join('');
+  },
+
+  render() {
+    if (!App.state.loaded) { this.showSkel(); return; }
+    const search = G('ms').value.toLowerCase().trim();
+    const cat    = G('mc').value;
+    const sort   = G('mo').value;
+    let prods = App.data.allProducts();
+    if (App.state.activeDest !== 'all') prods = prods.filter(p => p.code === App.state.activeDest);
+    if (search) prods = prods.filter(p => p.name.toLowerCase().includes(search) || p.type.toLowerCase().includes(search));
+    if (cat)    prods = prods.filter(p => p.type === cat);
+    switch (sort) {
+      case 'cost_asc':    prods.sort((a,b) => a.cost-b.cost); break;
+      case 'cost_desc':   prods.sort((a,b) => b.cost-a.cost); break;
+      case 'profit_desc': prods.sort((a,b) => (b.mv-b.cost)-(a.mv-a.cost)); break;
+      case 'qty_desc':    prods.sort((a,b) => b.qty-a.qty); break;
+      case 'name_asc':    prods.sort((a,b) => a.name.localeCompare(b.name)); break;
+    }
+    if (!prods.length) {
+      G('marea').innerHTML = `<div class="empty"><div class="ei">📦</div><p>${t('market_no_results')}${search?` — "${e(search)}"`:''}</p></div>`;
+      return;
+    }
+    G('marea').innerHTML = `<div class="pgrid">${prods.map((p,i) => this._card(p,i)).join('')}</div>`;
+  },
+
+  _card(p, i) {
+    const isFav = App.state.favs.includes(p.key);
+    const profit = p.mv > 0 ? p.mv - p.cost : 0;
+    const pCls = profit > 0 ? 'pos' : profit < 0 ? 'neg' : '';
+    // "de lucro" — per the requirement
+    const pStr = profit !== 0 ? `${profit>0?'+':''}$${fmtN(Math.abs(profit))} ${t('market_profit_label')}` : '';
+    return `<div class="pc" style="animation-delay:${Math.min(i,24)*12}ms">
+      <div class="ptop">
+        <div class="pname">${e(p.name)}</div>
+        <button class="fbtn${isFav?' on':''}" onclick="App.favs.toggle('${p.key}')" aria-label="Favourite">
+          ${isFav?'⭐':'☆'}</button>
+      </div>
+      <div class="pprice">$${fmtN(p.cost)}</div>
+      ${p.mv>0?`<div class="pmkt">${t('market_torn_price')} $${fmtN(p.mv)}</div>`:''}
+      ${pStr?`<div class="pprofit ${pCls}">${pStr}</div>`:''}
+      <div class="pills">
+        <span class="pill pb">${e(p.type)}</span>
+        ${p.qty>0?`<span class="pill pg">${fmtN(p.qty)}${t('market_in_stock')}</span>`:`<span class="pill pr">${t('market_no_stock')}</span>`}
+      </div>
+      <div class="pfoot">${p.cflag} ${e(p.cname)} · ↻ ${timeAgo(p.updatedAt)}</div>
+    </div>`;
+  },
+
+  showSkel() {
+    G('marea').innerHTML = `<div class="sgrid">${Array(8).fill('<div class="skel"></div>').join('')}</div>`;
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   MONITOR MODULE
+══════════════════════════════════════════════════════════════ */
+App.monitor = {
+  startPoll() {
+    this.poll(false);
+    clearInterval(App.state.pollTimer);
+    App.state.pollTimer = setInterval(() => {
+      const st = App.state.travelData?.status?.state;
+      if (!App.state.travelData || st === 'Traveling' || st === 'Abroad') this.poll(false);
+    }, 30000);
+  },
+
+  async poll(manual = true) {
+    const key = App.data._apiKey(); if (!key) return;
+    G('psp').classList.add('spinning');
+    try {
+      const r = await fetch(`https://api.torn.com/user/?selections=travel,basic&key=${key}&_=${Date.now()}`);
+      const d = await r.json();
+      if (d.error) { this._log(`❌ ${d.error.error}`, 'err'); return; }
+      App.state.travelData = d;
+      this.applyUI(d);
+      this._log(`✓ ${hhmm()} — ${d.status?.state||'?'}`, 'ok');
+      if (manual) toast(t('status_updated'), 'ok');
+    } catch (ex) { this._log(`⚠ ${ex.message}`, 'err'); }
+    finally { G('psp').classList.remove('spinning'); }
+  },
+
+  applyUI(d) {
+    const state = d.status?.state || 'Okay';
+    const trv   = d.travel || {};
+    const bd = G('bigdot'), lbl = G('ts-lbl'), sub = G('ts-sub');
+    const cdEl = G('ts-cd'), bwEl = G('ts-bw'), rows = G('ts-rows'), tbar = G('tbar');
+
+    if (state === 'Traveling') {
+      const dest  = trv.destination || '';
+      const tl    = trv.time_left || 0;
+      const dep   = trv.departed || 0;
+      const arr   = trv.timestamp || 0;
+      const total = arr > dep ? arr - dep : 0;
+      bd.className = 'ts-bd bd-trv';
+      lbl.textContent = `${t('monitor_flying_to')} ${cname(dest)}`;
+      sub.textContent = `${t('monitor_departed')}: ${fmtTs(dep*1000)}`;
+      cdEl.classList.remove('hidden'); bwEl.classList.remove('hidden');
+      this._startCD(tl, total);
+      rows.innerHTML = this._irow(t('monitor_departed'), fmtTs(dep*1000)) +
+                       this._irow(t('monitor_eta'), fmtTs(arr*1000)) +
+                       this._irow(t('monitor_remaining'), fmtDur(tl));
+      tbar.classList.add('show');
+      G('tbar-txt').innerHTML = `${t('monitor_flying_to')} <b>${cname(dest)}</b>`;
+      this._checkNotifs(tl, dest);
+      if (App.state.abroadDest !== dest) { App.state.abroadDest = dest; App.people.fetch(dest); }
+    } else if (state === 'Abroad') {
+      const dest = trv.destination || '';
+      bd.className = 'ts-bd bd-abrd';
+      lbl.textContent = t('monitor_abroad');
+      sub.textContent = `${cflag(dest)} ${cname(dest)}`;
+      cdEl.classList.add('hidden'); bwEl.classList.add('hidden');
+      clearInterval(App.state.cdTimer); G('tbar-cd').textContent = '';
+      rows.innerHTML = this._irow(t('monitor_location'), cflag(dest)+' '+cname(dest));
+      tbar.classList.remove('show');
+      if (App.state.abroadDest !== dest) { App.state.abroadDest = dest; App.people.fetch(dest); }
+      App.state.n3done = false; App.state.n1done = false;
     } else {
-      S.notifOn=false; G('ntog-chk').checked=false;
-      toast('Permissão negada pelo browser','err');
+      bd.className = 'ts-bd bd-home';
+      lbl.textContent = t('monitor_at_home');
+      sub.textContent = t('monitor_no_travel');
+      cdEl.classList.add('hidden'); bwEl.classList.add('hidden');
+      clearInterval(App.state.cdTimer); G('tbar-cd').textContent = '';
+      rows.innerHTML = this._irow(t('monitor_status'), '🏠 ' + t('monitor_at_home'));
+      tbar.classList.remove('show');
+      G('people-title').textContent = t('people_title');
+      G('people-area').innerHTML = `<div class="empty"><div class="ei">🏠</div><p>${t('monitor_no_travel')}</p></div>`;
+      G('people-controls').classList.add('hidden');
+      App.state.abroadDest = null; App.state.n3done = false; App.state.n1done = false;
     }
-  } else {
-    S.notifOn=false; LS.s('tf_notif',false);
-    G('ntog-lbl').textContent='Notificar 3 min antes de chegar';
-    G('notif-topbar-btn').className='notif-btn';
-  }
-}
-function toggleNotifUI(){ G('ntog-chk').click(); }
+  },
 
-function sendNotif(title,body){
-  if(!('Notification' in window)||Notification.permission!=='granted') return;
-  try{ new Notification(title,{body,icon:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>'}); }catch{}
-}
+  _startCD(tl, total) {
+    clearInterval(App.state.cdTimer);
+    let remaining = tl;
+    const tick = () => {
+      if (remaining < 0) remaining = 0;
+      const s = fmtDur(remaining);
+      G('ts-cd').textContent = s; G('tbar-cd').textContent = s;
+      if (total > 0) {
+        const pct = Math.max(0, Math.min(100, (1 - remaining/total)*100));
+        G('ts-bar').style.width = pct + '%';
+      }
+      if (remaining > 0) remaining--;
+    };
+    tick();
+    App.state.cdTimer = setInterval(tick, 1000);
+  },
 
-/* people abroad */
-async function fetchPeople(countryCode){
-  if(!countryCode||!S.user)return;
-  const cc = countryCode.toLowerCase();
-  G('people-title').textContent = `Jogadores em ${cflag(cc)} ${cname(cc)}`;
-  G('people-area').innerHTML = '<div style="font-family:var(--M);font-size:.7rem;color:var(--muted);padding:.5rem 0">A carregar jogadores…</div>';
-  try{
-    const r = await fetch(T_ABROAD(cc, S.user.apiKey));
-    const d = await r.json();
-    if(d.error){
-      G('people-area').innerHTML=`<div class="empty"><div class="ei">🔒</div>
-        <p>Sem acesso à lista de jogadores.<br>
-        <small>Requer <b>Full Access</b> API Key.<br>Erro ${d.error.code}: ${e(d.error.error)}</small></p></div>`;
+  _checkNotifs(tl, dest) {
+    if (!App.state.notifOn) return;
+    if (tl <= 180 && !App.state.n3done) {
+      App.state.n3done = true;
+      this._sendNotif(t('monitor_notif_3min_title'), t('monitor_notif_3min_body').replace('{dest}', cname(dest)));
+      toast('🔔 3min', 'info');
+    }
+    if (tl <= 60 && !App.state.n1done) {
+      App.state.n1done = true;
+      this._sendNotif(t('monitor_notif_1min_title'), t('monitor_notif_1min_body').replace('{dest}', cname(dest)));
+    }
+    if (tl > 300) { App.state.n3done = false; App.state.n1done = false; }
+  },
+
+  async handleNotifToggle() {
+    const on = G('ntog').checked;
+    if (on) {
+      if (!('Notification' in window)) { toast('No support', 'err'); G('ntog').checked = false; return; }
+      const p = await Notification.requestPermission();
+      if (p === 'granted') {
+        App.state.notifOn = true; Store.set('tf_notif', true);
+        G('ntog-lbl').textContent = t('monitor_notif_on');
+        G('nfbtn-top').className = 'nfbtn on'; toast(t('monitor_notif_on'), 'ok');
+      } else {
+        App.state.notifOn = false; G('ntog').checked = false; toast(t('monitor_notif_denied'), 'err');
+      }
+    } else {
+      App.state.notifOn = false; Store.set('tf_notif', false);
+      G('ntog-lbl').textContent = t('monitor_notif_label');
+      G('nfbtn-top').className = 'nfbtn';
+    }
+  },
+
+  _sendNotif(title, body) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try { new Notification(title, { body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">✈️</text></svg>' }); } catch {}
+  },
+
+  _log(msg, cls='') {
+    const el = G('plog');
+    const d = document.createElement('div'); d.className='plog-line pl-'+cls; d.textContent=msg;
+    el.insertBefore(d, el.firstChild);
+    while (el.children.length > 25) el.removeChild(el.lastChild);
+  },
+
+  _irow(l, v) { return `<div class="irow"><span class="il">${l}</span><span class="iv">${v}</span></div>`; }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   PEOPLE MODULE — Uses YATA export travellers data
+══════════════════════════════════════════════════════════════ */
+App.people = {
+  async fetch(dest) {
+    if (!dest) return;
+    const cc = dest.toLowerCase();
+    G('people-title').textContent = `${cflag(cc)} ${cname(cc)}`;
+    G('people-area').innerHTML = `<div style="font-family:var(--M);font-size:.7rem;color:var(--muted);padding:.5rem 0">${t('people_loading')}</div>`;
+    G('people-controls').classList.add('hidden');
+
+    // YATA export includes a 'travelers' field per country with player data
+    const yataData = App.state.stocks[cc];
+
+    if (!yataData) {
+      G('people-area').innerHTML = `<div class="empty"><div class="ei">👥</div><p>${t('people_no_travel')}</p></div>`;
       return;
     }
-    const users = d.users||d.abroad||[];
-    if(!users.length){
-      G('people-area').innerHTML='<div class="empty"><div class="ei">👤</div><p>Nenhum jogador visível.<br><small>Jogadores de Theater 10★ ficam ocultos.</small></p></div>';
+
+    // Extract travellers from YATA data
+    // YATA format: stocks[country].travelers = [{tId, name, ttl, update, ...}]
+    const travelers = yataData.travelers || yataData.travellers || [];
+
+    if (!travelers.length) {
+      G('people-area').innerHTML = `<div class="empty"><div class="ei">👤</div><p>${t('people_none')}<br><small style="font-size:.7rem;color:var(--muted)">${t('people_note')}</small></p></div>`;
       return;
     }
-    const rows = users.slice(0,30).map(u=>`
-      <div class="prow">
+
+    App.state.peopleRaw = travelers.map(u => ({
+      id: u.tId || u.id || 0,
+      name: u.name || '?',
+      level: u.level || 0,
+      faction: u.faction || u.factionName || '—',
+      update: u.update || u.ttl || 0,
+      status: u.status || 'Abroad',
+      hospital: u.hospital || false,
+    }));
+
+    G('people-controls').classList.remove('hidden');
+    this.filterRender();
+  },
+
+  filterRender() {
+    const search = (G('people-search')?.value || '').toLowerCase().trim();
+    const sort   = G('people-sort')?.value || 'name';
+    let list = [...App.state.peopleRaw];
+
+    if (search) list = list.filter(u => u.name.toLowerCase().includes(search) || String(u.id).includes(search) || u.faction.toLowerCase().includes(search));
+
+    switch (sort) {
+      case 'name':          list.sort((a,b) => a.name.localeCompare(b.name)); break;
+      case 'level_desc':    list.sort((a,b) => b.level - a.level); break;
+      case 'activity_desc': list.sort((a,b) => b.update - a.update); break;
+    }
+
+    if (!list.length) {
+      G('people-area').innerHTML = `<div class="empty"><div class="ei">🔍</div><p>${t('people_none')}</p></div>`;
+      return;
+    }
+
+    const rows = list.slice(0, 50).map(u => {
+      const ago = u.update > 0 ? timeAgo(u.update * 1000) : '—';
+      const isOnline = u.update > 0 && (Date.now()/1000 - u.update) < 300;
+      const badgeCls = u.hospital ? 'pbadge-hosp' : 'pbadge';
+      const badgeTxt = u.hospital ? '🏥 Hospital' : u.status || 'Abroad';
+      return `<div class="prow">
         <div class="pleft">
-          <div class="avt">${u.name?u.name[0].toUpperCase():'?'}</div>
-          <div>
-            <div class="pname">
-              <a href="https://www.torn.com/profiles.php?XID=${u.id}" target="_blank"
-                 style="color:inherit;text-decoration:none">${e(u.name||'Desconhecido')}</a>
-              <span style="color:var(--muted);font-size:.68rem"> [${u.id||'?'}]</span>
+          <div class="avt">${u.name ? u.name[0].toUpperCase() : '?'}</div>
+          <div class="pinfo">
+            <div class="pnlbl">
+              <a href="https://www.torn.com/profiles.php?XID=${u.id}" target="_blank" rel="noopener">${e(u.name)}</a>
+              <span class="pid">[${u.id}]</span>
             </div>
-            <div class="pmeta">Nível ${u.level||'?'} · ${e(u.faction?.name||'Sem facção')}</div>
+            <div class="pmlbl">${e(u.faction)}</div>
           </div>
         </div>
-        <span class="pbadge">Abroad</span>
-      </div>`).join('');
-    G('people-area').innerHTML = rows+`<p style="font-size:.63rem;color:var(--muted);margin-top:.6rem;font-family:var(--M)">${users.length} jogador${users.length!==1?'es':''} · só perfis públicos</p>`;
-  }catch(ex){
-    G('people-area').innerHTML=`<div class="empty"><div class="ei">⚠️</div><p>Erro ao carregar.<br><code>${e(ex.message)}</code></p></div>`;
+        <div class="pright">
+          <span class="${badgeCls}">${badgeTxt}</span>
+          <span class="plevel">Lv${u.level||'?'}</span>
+          <span class="ponline${isOnline?' online':''}">↻ ${ago}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    G('people-area').innerHTML = rows +
+      `<p style="font-family:var(--M);font-size:.62rem;color:var(--muted);margin-top:.6rem">${list.length}${t('people_sub')}</p>
+       <p style="font-family:var(--M);font-size:.6rem;color:var(--muted);margin-top:2px">${t('people_note')}</p>`;
   }
-}
+};
 
-/* poll log */
-function logPoll(msg, cls=''){
-  const el2=G('plog');
-  const div=document.createElement('div');
-  div.className='plog-line plog-'+cls;
-  div.textContent=msg;
-  el2.insertBefore(div, el2.firstChild);
-  while(el2.children.length>20) el2.removeChild(el2.lastChild);
-}
-function irow(l,v){ return `<div class="irow"><span class="il">${l}</span><span class="iv">${v}</span></div>`; }
+/* ══════════════════════════════════════════════════════════════
+   INTELLIGENCE MODULE
+══════════════════════════════════════════════════════════════ */
+App.intelligence = {
+  render() {
+    if (!App.state.loaded) {
+      G('intel-kpis').innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ei">🧠</div><p>${t('no_data')}</p></div>`;
+      G('intel-top-items').innerHTML = '';
+      G('intel-top-dests').innerHTML = '';
+      G('intel-alerts').innerHTML = '';
+      return;
+    }
 
-/* ═══════════════════════════════════════════════
-   DESTINATION GUIDE
-═══════════════════════════════════════════════ */
-function buildGuide(){
-  const XMAP = {
-    bank:    '<span class="xb x-bank">🏦 Banco Offshore</span>',
-    rehab:   '<span class="xb x-rehab">💊 Reabilitação</span>',
-    fortune: '<span class="xb x-fortune">🔮 Leitora da Fortuna</span>',
-    hunt:    '<span class="xb x-hunt">🦁 Caça de Animais</span>',
-    suitcase:'<span class="xb x-bank">🧳 Suitcases à venda</span>',
-  };
-  const SMAP = {
-    safe:  '<span class="xb x-safe">✅ Relativamente seguro</span>',
-    med:   '<span class="xb x-warn">⚠ Cuidado normal</span>',
-    danger:'<span class="xb x-danger">🚨 Muggers frequentes</span>',
-  };
-  G('dgrid').innerHTML = Object.entries(CTRY).map(([code,c])=>`
-    <div class="dgc">
-      <div class="dgch">
-        <span class="dgcf">${c.flag}</span>
-        <div><div class="dgct">${c.name}</div><div class="dgcity">${c.city}</div></div>
-      </div>
-      <div class="dgb">
-        <div class="dgs">
-          <div class="dgsl">Tempos de voo</div>
-          <div class="frow"><span class="flb">Standard</span><span class="fvl">${fmtMin(c.ft.standard)}</span></div>
-          <div class="frow"><span class="flb">Airstrip</span><span class="fvl">${fmtMin(c.ft.airstrip)}</span></div>
-          <div class="frow"><span class="flb">WLT</span><span class="fvl">${fmtMin(c.ft.wlt)}</span></div>
-          <div class="frow"><span class="flb">Business</span><span class="fvl"><b>${fmtMin(c.ft.business)}</b></span></div>
-          <div class="frow"><span class="flb">Custo ida</span><span class="fvl">$${fmtN(c.cost)}</span></div>
+    const prods = App.data.allProducts();
+    const prodsWithStock = prods.filter(p => p.qty > 0);
+    const prodsWithProfit = prods.filter(p => p.mv > 0 && (p.mv - p.cost) > 0);
+    prodsWithProfit.sort((a,b) => (b.mv-b.cost) - (a.mv-a.cost));
+
+    // Best profit item
+    const bestProfit = prodsWithProfit[0];
+    // Best by profit/min (profit / one-way flight time)
+    const byProfitMin = prodsWithStock.filter(p => p.mv > p.cost).map(p => {
+      const ft = CTRY[p.code]?.ft?.business || CTRY[p.code]?.ft?.standard || 1;
+      return { ...p, pmin: (p.mv-p.cost)/ft, phour: (p.mv-p.cost)/ft*60 };
+    }).sort((a,b) => b.pmin - a.pmin);
+    const bestPMin = byProfitMin[0];
+
+    // Best destination (by total profit of top item)
+    const destProfits = {};
+    prodsWithProfit.slice(0, 100).forEach(p => {
+      if (!destProfits[p.code]) destProfits[p.code] = 0;
+      destProfits[p.code] += p.mv - p.cost;
+    });
+    const bestDestCode = Object.entries(destProfits).sort((a,b)=>b[1]-a[1])[0]?.[0];
+    const bestDest = bestDestCode ? CTRY[bestDestCode] : null;
+
+    // KPI cards
+    G('intel-kpis').innerHTML = [
+      { icon:'💰', label:t('intel_best_profit'),
+        val: bestProfit ? `$${fmtN(bestProfit.mv-bestProfit.cost)}` : '—',
+        sub: bestProfit ? `<b>${e(bestProfit.name)}</b> · ${bestProfit.cflag} ${e(bestProfit.cname)}` : t('no_data'),
+        highlight: true },
+      { icon:'📦', label:t('intel_best_item'),
+        val: bestProfit ? e(bestProfit.name) : '—',
+        sub: bestProfit ? `$${fmtN(bestProfit.cost)} → $${fmtN(bestProfit.mv)}` : t('no_data') },
+      { icon:'🌍', label:t('intel_best_dest'),
+        val: bestDest ? `${bestDest.flag} ${bestDest.n[App.lang.current]}` : '—',
+        sub: bestDestCode ? `$${fmtN(destProfits[bestDestCode])} ${t('market_profit_label')} top items` : t('no_data') },
+      { icon:'⚡', label:t('intel_profit_min'),
+        val: bestPMin ? `$${fmtN(Math.round(bestPMin.pmin))}/min` : '—',
+        sub: bestPMin ? `<b>${e(bestPMin.name)}</b> · Business Class` : t('no_data') },
+      { icon:'🕒', label:t('intel_profit_hour'),
+        val: bestPMin ? `$${fmtN(Math.round(bestPMin.phour))}/h` : '—',
+        sub: bestPMin ? `${bestPMin.cflag} ${e(bestPMin.cname)}` : t('no_data') },
+      { icon:'🔄', label:t('intel_yata_update'),
+        val: App.state.yataTs > 0 ? timeAgo(App.state.yataTs*1000) : '—',
+        sub: App.state.yataTs > 0 ? new Date(App.state.yataTs*1000).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}) : t('no_data') },
+    ].map(c => `
+      <div class="intel-card${c.highlight?' highlight':''}">
+        <div class="ic-icon">${c.icon}</div>
+        <div class="ic-label">${c.label}</div>
+        <div class="ic-val">${c.val}</div>
+        <div class="ic-sub">${c.sub}</div>
+      </div>`).join('');
+
+    // Top 10 items by profit
+    G('intel-top-items').innerHTML = prodsWithProfit.slice(0,10).map((p,i) => {
+      const profit = p.mv - p.cost;
+      const ft = CTRY[p.code]?.ft?.business || 1;
+      const pmin = profit/ft;
+      return `<div class="top-item-row" onclick="App.nav.go('market');App.market.setDest('${p.code}');G('ms').value='${p.name.replace(/'/g,'').slice(0,20)}';App.market.render()">
+        <div class="tir-left">
+          <span class="tir-rank">${i+1}</span>
+          <div>
+            <div class="tir-name">${e(p.name)}</div>
+            <div class="tir-dest">${p.cflag} ${e(p.cname)} · ${p.qty>0?fmtN(p.qty)+t('market_in_stock'):t('market_no_stock')}</div>
+          </div>
         </div>
-        ${c.extras.length?`<div class="dgs"><div class="dgsl">Extras exclusivos</div><div class="extras">${c.extras.map(x=>XMAP[x]||'').join('')}</div></div>`:''}
-        <div class="dgs"><div class="dgsl">Segurança</div><div class="extras">${SMAP[c.safety]||''}</div></div>
-        <div class="dgs">
-          <div class="dgsl">Dica</div>
-          <p style="font-size:.71rem;color:var(--muted2);line-height:1.65">${e(c.tips)}</p>
+        <div class="tir-right">
+          <div class="tir-profit">+$${fmtN(profit)}</div>
+          <div class="tir-pmin">$${fmtN(Math.round(pmin))}/min</div>
         </div>
-      </div>
-    </div>`).join('');
-}
+      </div>`;
+    }).join('') || `<p style="font-size:.77rem;color:var(--muted)">${t('no_data')}</p>`;
 
-/* ═══════════════════════════════════════════════
-   TRIP PLANNER
-═══════════════════════════════════════════════ */
-function buildTripDests(){
-  G('tp-dest').innerHTML = '<option value="">-- Escolher destino --</option>'+
-    Object.entries(CTRY).map(([code,c])=>`<option value="${code}">${c.flag} ${c.name}</option>`).join('');
-}
+    // Top 10 destinations by total profit potential
+    const destList = Object.entries(destProfits).map(([code,profit]) => ({
+      code, profit, c: CTRY[code], count: prodsWithProfit.filter(p=>p.code===code).length
+    })).sort((a,b)=>b.profit-a.profit).slice(0,10);
 
-function buildTrip(){
-  const code   = G('tp-dest').value;
-  const flight = G('tp-flight').value;
-  const goal   = G('tp-goal').value;
-  if(!code){ toast('Escolhe um destino','err'); return; }
+    G('intel-top-dests').innerHTML = destList.map((d,i) => `
+      <div class="top-item-row" onclick="App.nav.go('market');App.market.setDest('${d.code}')">
+        <div class="tir-left">
+          <span class="tir-rank">${i+1}</span>
+          <div>
+            <div class="tir-name">${d.c.flag} ${d.c.n[App.lang.current]}</div>
+            <div class="tir-dest">${d.count} ${App.lang.current==='pt'?'itens lucrativos':'profitable items'}</div>
+          </div>
+        </div>
+        <div class="tir-right">
+          <div class="tir-profit">$${fmtN(d.profit)}</div>
+        </div>
+      </div>`).join('') || `<p style="font-size:.77rem;color:var(--muted)">${t('no_data')}</p>`;
 
-  const c    = CTRY[code];
-  const tmin = c.ft[flight]||c.ft.standard;
+    // Stock alerts — low stock items with profit
+    const lowStock = prodsWithProfit.filter(p => p.qty > 0 && p.qty <= 3);
+    const outOfStock = prodsWithProfit.filter(p => p.qty === 0).slice(0, 5);
+    let alertsHTML = '';
+    lowStock.slice(0,5).forEach(p => {
+      alertsHTML += `<div class="alert-row">
+        <div><div class="alert-name">${e(p.name)}</div><div class="alert-sub">${p.cflag} ${e(p.cname)}</div></div>
+        <div class="alert-val">⚠ ${p.qty} ${App.lang.current==='pt'?'em stock':'in stock'}</div>
+      </div>`;
+    });
+    outOfStock.forEach(p => {
+      alertsHTML += `<div class="alert-row alert-row-red">
+        <div><div class="alert-name alert-name-red">${e(p.name)}</div><div class="alert-sub">${p.cflag} ${e(p.cname)}</div></div>
+        <div class="alert-val" style="color:var(--red)">✕ ${t('market_no_stock')}</div>
+      </div>`;
+    });
+    G('intel-alerts').innerHTML = alertsHTML || `<p style="font-size:.77rem;color:var(--muted)">${App.lang.current==='pt'?'Sem alertas.':'No alerts.'}</p>`;
+  }
+};
 
-  /* Goal info */
-  const GOALS = {
-    items:   {icon:'🛒',title:'Comprar items',
-              desc:'Compra items estrangeiros e vende em Torn City. Verifica o separador Mercado para ver o que está disponível e calcular lucros.'},
-    rehab:   {icon:'💊',title:'Reabilitação',
-              desc:'O Centro de Reabilitação na Suíça elimina vícios a drogas e enche a barra de Felicidade ao máximo. Essencial para gym.'},
-    bank:    {icon:'🏦',title:'Banco Offshore',
-              desc:'Deposita dinheiro ilimitado no Cayman National Bank. Juros: 0.5%/mês no saldo mínimo do mês.'},
-    fortune: {icon:'🔮',title:'Leitora da Fortuna',
-              desc:'A leitora em Pequim revela a % do teu progresso até ao próximo nível. Custo: $75.000.'},
-    hunt:    {icon:'🦁',title:'Caça de Animais',
-              desc:'Usa energia para caçar animais selvagens na África do Sul. Ganhas cash, XP e honors exclusivos.'},
-  };
-  const gi = GOALS[goal]||GOALS.items;
+/* ══════════════════════════════════════════════════════════════
+   GUIDE MODULE
+══════════════════════════════════════════════════════════════ */
+App.guide = {
+  build() {
+    const L = App.lang.current;
+    const XMAP = {
+      bank:    `<span class="xb x-bank">🏦 ${L==='pt'?'Banco Offshore':'Offshore Bank'}</span>`,
+      rehab:   `<span class="xb x-rehab">💊 ${L==='pt'?'Reabilitação':'Rehab Center'}</span>`,
+      fortune: `<span class="xb x-fortune">🔮 ${L==='pt'?'Leitora da Fortuna':'Fortune Teller'}</span>`,
+      hunt:    `<span class="xb x-hunt">🦁 ${L==='pt'?'Caça de Animais':'Animal Hunting'}</span>`,
+      suitcase:`<span class="xb x-sc">🧳 Suitcases</span>`,
+    };
+    const SMAP = {
+      safe:   `<span class="xb x-safe">${t('guide_safe')}</span>`,
+      med:    `<span class="xb x-warn">${t('guide_med')}</span>`,
+      danger: `<span class="xb x-danger">${t('guide_danger')}</span>`,
+    };
+    G('dgrid').innerHTML = Object.entries(CTRY).map(([code, c]) => `
+      <div class="dgc">
+        <div class="dgch">
+          <span class="dgcf">${c.flag}</span>
+          <div><div class="dgct">${c.n[L]}</div><div class="dgcity">${c.city}</div></div>
+        </div>
+        <div class="dgb">
+          <div class="dgs">
+            <div class="dgsl">${t('guide_flight_times')}</div>
+            <div class="frow"><span class="flb">${t('flight_standard')}</span><span class="fvl">${fmtMin(c.ft.standard)}</span></div>
+            <div class="frow"><span class="flb">${t('flight_airstrip')}</span><span class="fvl">${fmtMin(c.ft.airstrip)}</span></div>
+            <div class="frow"><span class="flb">${t('flight_wlt')}</span><span class="fvl">${fmtMin(c.ft.wlt)}</span></div>
+            <div class="frow"><span class="flb">${t('flight_business')}</span><span class="fvl"><b>${fmtMin(c.ft.business)}</b></span></div>
+            <div class="frow"><span class="flb">${t('guide_flight_cost')}</span><span class="fvl">$${fmtN(c.cost)}</span></div>
+          </div>
+          ${c.extras.length ? `<div class="dgs"><div class="dgsl">${t('guide_extras')}</div><div class="extras">${c.extras.map(x=>XMAP[x]||'').join('')}</div></div>` : ''}
+          <div class="dgs"><div class="dgsl">${t('guide_safety')}</div><div class="extras">${SMAP[c.safety]||''}</div></div>
+          <div class="dgs"><div class="dgsl">${t('guide_tip')}</div><p style="font-size:.7rem;color:var(--muted2);line-height:1.65">${e(c.tips[L])}</p></div>
+        </div>
+      </div>`).join('');
+  }
+};
 
-  /* Items disponíveis */
-  const destProds = S.loaded?(S.stocks[code]?.stocks||[])
-    .map(s=>({...s,info:S.items[s.id]||{}}))
-    .filter(s=>s.quantity>0)
-    .sort((a,b)=>a.cost-b.cost).slice(0,5):[];
+/* ══════════════════════════════════════════════════════════════
+   TRIP MODULE
+══════════════════════════════════════════════════════════════ */
+App.trip = {
+  buildDests() {
+    const L = App.lang.current;
+    G('tp-d').innerHTML = '<option value="">—</option>' +
+      Object.entries(CTRY).map(([code,c]) => `<option value="${code}">${c.flag} ${c.n[L]}</option>`).join('');
+  },
 
-  /* Risk analysis */
-  const warns=[];
-  const checks=[
-    [code==='cay','danger','🚨 Cayman tem muggers muito frequentes! Deposita rápido e regressa imediatamente.'],
-    [code==='cay'&&goal!=='bank','warn','⚠ O Banco Offshore só é útil nas Cayman Islands.'],
-    [code!=='swi'&&goal==='rehab','warn','⚠ Reabilitação só está disponível na Suíça.'],
-    [code!=='chi'&&goal==='fortune','warn','⚠ Leitora da Fortuna só está disponível na China.'],
-    [code!=='sou'&&goal==='hunt','warn','⚠ Caça de animais só está disponível na África do Sul.'],
-    [code==='swi'&&goal==='rehab','safe','✅ Destino correto para Reabilitação. Suíça é segura.'],
-    [code==='cay'&&goal==='bank','safe','✅ Destino correto para Banco Offshore.'],
-    [code==='chi'&&goal==='fortune','safe','✅ Destino correto para a Leitora da Fortuna.'],
-    [code==='sou'&&goal==='hunt','safe','✅ Destino correto para Caça de Animais.'],
-    [tmin>=200,'warn',`⚠ Voo muito longo (${fmtMin(tmin)}) — certifica-te que tens espaço de inventário e objetivos suficientes.`],
-    [tmin<30,'safe',`✅ Voo curto (${fmtMin(tmin)}) — viagem rápida e eficiente.`],
-    [goal==='items'&&destProds.length===0&&S.loaded,'warn','⚠ Sem stock carregado para este destino. Atualiza o Mercado primeiro.'],
-    [goal==='items'&&destProds.length>0,'safe',`✅ ${destProds.length} produtos com stock disponíveis.`],
-    [c.safety==='danger','danger','🚨 Destino de risco elevado. Não ficás offline neste destino com dinheiro em mão.'],
-  ];
-  checks.forEach(([cond,lvl,msg])=>{ if(cond) warns.push({lvl,msg}); });
+  build() {
+    const code   = G('tp-d').value;
+    const flight = G('tp-f').value;
+    const goal   = G('tp-g').value;
+    const L      = App.lang.current;
+    if (!code) { toast(L==='pt'?'Escolhe um destino':'Choose a destination','err'); return; }
 
-  const dangerCount = warns.filter(w=>w.lvl==='danger').length;
-  const warnCount   = warns.filter(w=>w.lvl==='warn').length;
-  const riskScore   = dangerCount*3+warnCount;
-  const riskLvl     = riskScore===0?'low':riskScore<=2?'med':'high';
-  const riskLabel   = riskScore===0?'Baixo 🟢':riskScore<=2?'Médio 🟡':'Alto 🔴';
+    const c = CTRY[code];
+    const tmin = c.ft[flight] || c.ft.standard;
+    const GOALS = {
+      items:  {icon:'🛒', title:t('goal_items').replace('🛒 ',''),   desc:L==='pt'?'Compra items estrangeiros e vende em Torn City. Verifica o Mercado para calcular lucros.':'Buy foreign items and sell in Torn City. Check Market to calculate profits.'},
+      rehab:  {icon:'💊', title:t('goal_rehab').replace('💊 ',''),   desc:L==='pt'?'Rehab na Suíça: elimina vícios e enche a felicidade. Essencial antes do gym.':'Rehab in Switzerland: removes addictions and fills happiness. Essential before gym.'},
+      bank:   {icon:'🏦', title:t('goal_bank').replace('🏦 ',''),    desc:L==='pt'?'Cayman National Bank. Juros 0.5%/mês. NUNCA fiques offline com dinheiro!':'Cayman National Bank. 0.5%/month interest. NEVER go offline with cash!'},
+      fortune:{icon:'🔮', title:t('goal_fortune').replace('🔮 ',''), desc:L==='pt'?'Leitora em Pequim: revela % do teu progresso para o próximo nível. Custo: $75.000.':'Fortune Teller in Beijing: reveals % progress to next level. Cost: $75,000.'},
+      hunt:   {icon:'🦁', title:t('goal_hunt').replace('🦁 ',''),    desc:L==='pt'?'Caça na África do Sul: cash, XP e honors raros. Usa energia.':'Hunting in South Africa: cash, XP and rare honors. Uses energy.'},
+    };
+    const gi = GOALS[goal] || GOALS.items;
 
-  /* Timeline steps */
-  const prodList = destProds.length
-    ? destProds.map(p=>`${e(p.info.name||'Item')} <b style="color:var(--accent)">$${fmtN(p.cost)}</b>`).join(', ')
-    : 'Carrega o Mercado para ver items disponíveis.';
+    const destProds = App.state.loaded
+      ? (App.state.stocks[code]?.stocks||[]).map(s=>({...s,info:App.state.items[s.id]||{}}))
+          .filter(s=>s.quantity>0).sort((a,b)=>a.cost-b.cost).slice(0,5)
+      : [];
 
-  const steps=[
-    {icon:'🏠',title:'Partida — Torn City',
-     sub:'Assegura dinheiro para o voo + itens. Verifica que não estás hospitalizado ou preso.',
-     badge:null},
-    {icon:'✈️',title:`Voo para ${c.name} (${flight})`,
-     sub:`Duração: ${fmtMin(tmin)} · Custo: $${fmtN(c.cost)} · Capacidade: 5 items (15 com airstrip/WLT/Business)`,
-     badge:{cls:'x-safe',txt:'✈ Invulnerável durante o voo'}},
-    {icon:'🛬',title:`Chegada em ${c.city}`,
-     sub:`Grace period de 15 segundos — nenhum jogador te pode atacar ao chegar.`,
-     badge:{cls:'x-safe',txt:'🛡 Grace period: 15s'}},
-    ...(goal==='items'?[{icon:'🛒',title:'Comprar items',
-     sub:`Itens disponíveis (com stock): ${prodList}`,
-     badge:null}]:[]),
-    ...(goal==='rehab'?[{icon:'💊',title:'Centro de Reabilitação — Zurique',
-     sub:'Elimina vícios a drogas. Enche a barra de Felicidade ao máximo. Custo varia com nível de vício.',
-     badge:{cls:'x-safe',txt:'💊 Felicidade 100%'}}]:[]),
-    ...(goal==='bank'?[{icon:'🏦',title:'Banco Offshore — George Town',
-     sub:'Deposita o mínimo de $100. Juros de 0.5%/mês sobre o saldo mínimo do mês. Não faças offline aqui!',
-     badge:{cls:'x-warn',txt:'⚠ Atenção a muggers!'}}]:[]),
-    ...(goal==='fortune'?[{icon:'🔮',title:'Leitora da Fortuna — Pequim',
-     sub:'Paga $75.000 para saber % de progresso até ao próximo nível. Kimshee só responde uma vez por visita.',
-     badge:{cls:'x-safe',txt:'🔮 $75.000'}}]:[]),
-    ...(goal==='hunt'?[{icon:'🦁',title:'Caça de Animais — Joanesburgo',
-     sub:'Usa energia para caçar. Cada caça consome energia e pode dar cash, XP e honors. Repete até esgotar energia.',
-     badge:{cls:'x-safe',txt:'🦁 Usa energia'}}]:[]),
-    {icon:'✈️',title:`Regresso a Torn City`,
-     sub:`Duração de regresso: ${fmtMin(tmin)} · Invulnerável durante todo o voo.`,
-     badge:{cls:'x-safe',txt:'✈ Invulnerável'}},
-    {icon:'🏠',title:'Chegou a casa!',
-     sub:`Vende os items no mercado local. Custo total da viagem: $${fmtN(c.cost*2)} (ida+volta). Tempo total: ${fmtMin(tmin*2)}.`,
-     badge:null},
-  ];
+    const warns = [];
+    const chk = (cond, lvl, msg) => { if (cond) warns.push({lvl, msg}); };
+    const pt = L==='pt';
+    chk(code==='cay','danger', pt?'🚨 Cayman — muggers MUITO frequentes! Deposita rápido e volta imediatamente.':'🚨 Cayman — VERY frequent muggers! Deposit fast and return immediately.');
+    chk(code!=='swi'&&goal==='rehab','warn', pt?'⚠ Reabilitação só disponível na Suíça.':'⚠ Rehab only available in Switzerland.');
+    chk(code!=='chi'&&goal==='fortune','warn', pt?'⚠ Leitora da Fortuna só disponível na China.':'⚠ Fortune Teller only in China.');
+    chk(code!=='sou'&&goal==='hunt','warn', pt?'⚠ Caça só disponível na África do Sul.':'⚠ Hunting only in South Africa.');
+    chk(code!=='cay'&&goal==='bank','warn', pt?'⚠ Banco Offshore só nas Cayman Islands.':'⚠ Offshore Bank only in Cayman Islands.');
+    chk(code==='swi'&&goal==='rehab','safe', pt?'✅ Destino correto. Suíça é muito segura.':'✅ Correct destination. Switzerland is very safe.');
+    chk(code==='cay'&&goal==='bank','safe', pt?'✅ Destino correto para Banco Offshore.':'✅ Correct destination for Offshore Bank.');
+    chk(code==='chi'&&goal==='fortune','safe', pt?'✅ Destino correto para Leitora.':'✅ Correct destination for Fortune Teller.');
+    chk(code==='sou'&&goal==='hunt','safe', pt?'✅ Destino correto para Caça.':'✅ Correct destination for Hunting.');
+    chk(tmin>=200,'warn', `${pt?'⚠ Voo muito longo':'⚠ Very long flight'} (${fmtMin(tmin)}) — ${pt?'maximiza o inventário.':'maximize inventory.'}`);
+    chk(c.safety==='danger','danger', pt?'🚨 Destino perigoso — nunca offline com dinheiro.':'🚨 Dangerous destination — never offline with cash.');
+    chk(goal==='items'&&destProds.length>0,'safe', `✅ ${destProds.length} ${pt?'produto(s) com stock disponíveis.':'product(s) with stock available.'}`);
 
-  const html=`
-    <div class="tresult">
-      <div class="ptitle">${c.flag} ${c.name} — ${gi.icon} ${gi.title}</div>
+    const danger = warns.filter(w=>w.lvl==='danger').length;
+    const warn2  = warns.filter(w=>w.lvl==='warn').length;
+    const rs     = danger*3 + warn2;
+    const rl     = rs===0?'low':rs<=2?'med':'high';
+    const rlText = t('trip_risk_'+rl);
+
+    const plist = destProds.length
+      ? destProds.map(p=>`${e(p.info.name||'Item')} <b style="color:var(--accent)">$${fmtN(p.cost)}</b>`).join(', ')
+      : (pt?'Carrega o Mercado para ver items.':'Load Market to see items.');
+
+    const profit = App.state.items ? (() => {
+      const topProd = destProds.find(p => App.state.items[p.id]?.mv > p.cost);
+      if (!topProd) return '';
+      const mv = App.state.items[topProd.id]?.mv||0;
+      const pr = mv - topProd.cost;
+      return pr>0 ? ` · <span style="color:var(--green)">+$${fmtN(pr)} ${t('market_profit_label')}</span>` : '';
+    })() : '';
+
+    const steps = [
+      {i:'🏠', t:pt?'Partida — Torn City':'Departure — Torn City', s:pt?'Assegura dinheiro e inventário livre.':'Ensure cash and free inventory.', b:null},
+      {i:'✈️', t:`${pt?'Voo para':'Flight to'} ${c.n[L]} (${flight})`, s:`${pt?'Duração':'Duration'}: ${fmtMin(tmin)} · ${pt?'Custo':'Cost'}: $${fmtN(c.cost)}`, b:{cls:'x-safe',t:t('trip_invuln')}},
+      {i:'🛬', t:`${pt?'Chegada em':'Arrival in'} ${c.city}`, s:pt?'Grace period 15s — ninguém te pode atacar.':'Grace period 15s — no player can attack you.', b:{cls:'x-safe',t:t('trip_grace')}},
+      ...(goal==='items'?[{i:'🛒', t:pt?'Comprar items':'Buy items', s:plist+profit, b:null}]:[]),
+      ...(goal==='rehab'?[{i:'💊', t:pt?'Centro de Reabilitação':'Rehab Center', s:pt?'Elimina vícios e enche felicidade. Custo varia.':'Removes addictions and fills happiness. Cost varies.', b:{cls:'x-safe',t:'💊'}}]:[]),
+      ...(goal==='bank'?[{i:'🏦', t:pt?'Banco Offshore':'Offshore Bank', s:pt?'Mín $100. Juros 0.5%/mês. NÃO fiques offline!':'Min $100. 0.5%/month. DON\'T go offline!', b:{cls:'x-danger',t:'⚠ Muggers!'}}]:[]),
+      ...(goal==='fortune'?[{i:'🔮', t:pt?'Leitora da Fortuna':'Fortune Teller', s:pt?'$75.000 para saber % do teu progresso para o próximo nível.':'$75,000 to know your % progress to next level.', b:{cls:'x-safe',t:'🔮 $75,000'}}]:[]),
+      ...(goal==='hunt'?[{i:'🦁', t:pt?'Caça de Animais':'Animal Hunting', s:pt?'Usa energia. Cada caça dá cash, XP e possivelmente honors.':'Use energy. Each hunt gives cash, XP and possibly honors.', b:{cls:'x-safe',t:'🦁'}}]:[]),
+      {i:'✈️', t:pt?'Regresso':'Return flight', s:`${fmtMin(tmin)} · ${pt?'Invulnerável':'Invulnerable'}`, b:{cls:'x-safe',t:t('trip_invuln')}},
+      {i:'🏠', t:pt?'Chegou a casa!':'Back home!', s:`${pt?'Custo total':'Total cost'}: $${fmtN(c.cost*2)} · ${pt?'Tempo total':'Total time'}: ${fmtMin(tmin*2)}`, b:null},
+    ];
+
+    G('trip-result').innerHTML = `<div class="tresult">
+      <div class="ptitle">${c.flag} ${c.n[L]} — ${gi.icon} ${gi.title}</div>
       <div class="riskrow">
-        <div class="riskbox"><div class="rl">Risco</div><div class="rv ${riskLvl}">${riskLabel}</div></div>
-        <div class="riskbox"><div class="rl">Tempo ida+volta</div><div class="rv">${fmtMin(tmin*2)}</div></div>
-        <div class="riskbox"><div class="rl">Custo total</div><div class="rv">$${fmtN(c.cost*2)}</div></div>
-        <div class="riskbox"><div class="rl">Flight type</div><div class="rv" style="text-transform:capitalize">${flight}</div></div>
+        <div class="riskbox"><div class="rl">${t('trip_risk')}</div><div class="rv ${rl}">${rlText}</div></div>
+        <div class="riskbox"><div class="rl">${t('trip_roundtrip')}</div><div class="rv">${fmtMin(tmin*2)}</div></div>
+        <div class="riskbox"><div class="rl">${t('trip_total_cost')}</div><div class="rv">$${fmtN(c.cost*2)}</div></div>
+        <div class="riskbox"><div class="rl">${t('trip_flight_type')}</div><div class="rv" style="text-transform:capitalize">${flight}</div></div>
       </div>
-      <p style="font-size:.77rem;color:var(--muted2);line-height:1.65;margin-bottom:.9rem">${gi.desc}</p>
-      ${warns.length?`<div class="warnings">${warns.map(w=>`<div class="wline wl-${w.lvl}">${w.msg}</div>`).join('')}</div>`:''}
+      <p style="font-size:.76rem;color:var(--muted2);line-height:1.65;margin-bottom:.85rem">${gi.desc}</p>
+      ${warns.length ? `<div class="warnings">${warns.map(w=>`<div class="wline wl-${w.lvl}">${w.msg}</div>`).join('')}</div>` : ''}
       <div class="timeline">${steps.map(s=>`
         <div class="tstep">
-          <div class="tsi">${s.icon}</div>
+          <div class="tsi">${s.i}</div>
           <div class="tsc">
-            <div class="tst">${s.title}</div>
-            <div class="tss">${s.sub}</div>
-            ${s.badge?`<div class="tsbadge ${s.badge.cls}">${s.badge.txt}</div>`:''}
+            <div class="tst">${s.t}</div>
+            <div class="tss">${s.s}</div>
+            ${s.b?`<div class="tsbadge ${s.b.cls}">${s.b.t}</div>`:''}
           </div>
         </div>`).join('')}
       </div>
     </div>`;
+    G('trip-result').classList.remove('hidden');
+    G('trip-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  },
 
-  G('trip-result').innerHTML=html;
-  G('trip-result').classList.remove('hidden');
-  G('trip-result').scrollIntoView({behavior:'smooth',block:'start'});
-}
+  clear() { G('trip-result').innerHTML=''; G('trip-result').classList.add('hidden'); }
+};
 
-function clearTrip(){
-  G('trip-result').innerHTML='';
-  G('trip-result').classList.add('hidden');
-}
+/* ══════════════════════════════════════════════════════════════
+   PLANNER MODULE
+══════════════════════════════════════════════════════════════ */
+App.planner = {
+  render() {
+    if (!App.state.loaded) {
+      G('plan-dests').innerHTML = `<p style="font-size:.77rem;color:var(--muted)">${t('no_data')}</p>`;
+      G('plan-top').innerHTML = '';
+      return;
+    }
+    const L = App.lang.current;
+    const rows = Object.entries(CTRY).map(([code,ci]) => {
+      const d = App.state.stocks[code];
+      if (!d || (d.stocks||[]).length===0) return null;
+      const sorted = [...d.stocks].sort((a,b)=>a.cost-b.cost);
+      return {code,ci,d,ch:sorted[0]};
+    }).filter(Boolean);
 
-/* ═══════════════════════════════════════════════
-   MARKET
-═══════════════════════════════════════════════ */
-function buildDestTabs(){
-  let html=`<button class="dtab active" id="tab-all" onclick="setDest('all')">🌍 Todos <span class="dc" id="cnt-all">—</span></button>`;
-  Object.entries(CTRY).forEach(([code,c])=>{
-    html+=`<button class="dtab" id="tab-${code}" onclick="setDest('${code}')">${c.flag}${c.name}<span class="dc" id="cnt-${code}">—</span></button>`;
-  });
-  G('dtabs').innerHTML=html;
-}
-function setDest(code){
-  S.activeDest=code;
-  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
-  G('tab-'+code)?.classList.add('active');
-  renderMarket();
-}
-function updateCounts(){
-  let tot=0;
-  Object.keys(CTRY).forEach(code=>{
-    const n=(S.stocks[code]?.stocks||[]).length; tot+=n;
-    const el2=G('cnt-'+code); if(el2) el2.textContent=n;
-  });
-  const el2=G('cnt-all'); if(el2) el2.textContent=tot;
-}
-function buildCatFilter(){
-  const types=new Set();
-  Object.values(S.stocks).forEach(d=>(d.stocks||[]).forEach(s=>{
-    const inf=S.items[s.id]; if(inf?.type) types.add(inf.type);
-  }));
-  const sel=G('mc'); const cur=sel.value;
-  sel.innerHTML='<option value="">Todas as categorias</option>'+
-    [...types].sort().map(t=>`<option value="${t}"${t===cur?' selected':''}>${t}</option>`).join('');
-}
-
-function allProds(){
-  const list=[];
-  Object.entries(CTRY).forEach(([code,ci])=>{
-    const d=S.stocks[code]; if(!d)return;
-    (d.stocks||[]).forEach(s=>{
-      const inf=S.items[s.id]||{};
-      list.push({key:`${code}:${s.id}`,id:s.id,name:inf.name||s.name||`#${s.id}`,
-        type:inf.type||'—',cost:s.cost,qty:s.quantity,mv:inf.mv||0,
-        code,cname:ci.name,cflag:ci.flag,updatedAt:d.update*1000});
-    });
-  });
-  return list;
-}
-
-function renderMarket(){
-  if(!S.loaded){showSkel();return}
-  const search=G('ms').value.toLowerCase().trim();
-  const cat=G('mc').value;
-  const sort=G('mo').value;
-  let prods=allProds();
-  if(S.activeDest!=='all') prods=prods.filter(p=>p.code===S.activeDest);
-  if(search) prods=prods.filter(p=>p.name.toLowerCase().includes(search)||p.type.toLowerCase().includes(search));
-  if(cat)    prods=prods.filter(p=>p.type===cat);
-  switch(sort){
-    case 'cost_asc':    prods.sort((a,b)=>a.cost-b.cost); break;
-    case 'cost_desc':   prods.sort((a,b)=>b.cost-a.cost); break;
-    case 'profit_desc': prods.sort((a,b)=>(b.mv-b.cost)-(a.mv-a.cost)); break;
-    case 'qty_desc':    prods.sort((a,b)=>b.qty-a.qty); break;
-    case 'name_asc':    prods.sort((a,b)=>a.name.localeCompare(b.name)); break;
-  }
-  if(!prods.length){
-    G('marea').innerHTML=`<div class="empty"><div class="ei">📦</div><p>Nenhum produto encontrado${search?` para "<b>${e(search)}</b>"`:''}.<br>Tenta outros filtros ou clica Atualizar.</p></div>`;
-    return;
-  }
-  G('marea').innerHTML=`<div class="pgrid">${prods.map((p,i)=>pcard(p,i)).join('')}</div>`;
-}
-
-function pcard(p,i){
-  const isFav=S.favs.includes(p.key);
-  const profit=p.mv>0?p.mv-p.cost:0;
-  const pcls=profit>0?'pos':profit<0?'neg':'';
-  const pstr=profit!==0?`${profit>0?'+':''}$${fmtN(profit)} vs mercado`:'';
-  return `<div class="pc" style="animation-delay:${Math.min(i,20)*14}ms">
-    <div class="ptop">
-      <div class="pname">${e(p.name)}</div>
-      <button class="fbtn${isFav?' on':''}" onclick="toggleFav('${p.key}')" title="${isFav?'Remover':'Favoritar'}">
-        ${isFav?'⭐':'☆'}</button>
-    </div>
-    <div class="pprice">$${fmtN(p.cost)}</div>
-    ${p.mv>0?`<div class="pmkt">Mercado Torn: $${fmtN(p.mv)}</div>`:''}
-    ${pstr?`<div class="pprofit ${pcls}">${pstr}</div>`:''}
-    <div class="pills">
-      <span class="pill pb">${e(p.type)}</span>
-      ${p.qty>0?`<span class="pill pg">${fmtN(p.qty)} em stock</span>`:`<span class="pill pr">Sem stock</span>`}
-    </div>
-    <div class="pfoot">${p.cflag} ${e(p.cname)} · ↻ ${timeAgo(p.updatedAt)}</div>
-  </div>`;
-}
-
-/* ═══════════════════════════════════════════════
-   FAVORITES
-═══════════════════════════════════════════════ */
-function toggleFav(key){
-  const i=S.favs.indexOf(key);
-  if(i>=0){S.favs.splice(i,1);toast('Removido dos favoritos','info')}
-  else{S.favs.push(key);toast('⭐ Adicionado aos favoritos','ok')}
-  LS.s('tf_favs',S.favs);
-  if(G('view-market').classList.contains('active'))    renderMarket();
-  if(G('view-favorites').classList.contains('active')) renderFavs();
-}
-
-function renderFavs(){
-  if(!S.loaded){
-    G('farea').innerHTML='<div class="empty"><div class="ei">⚠️</div><p>Carrega dados no Mercado primeiro.</p></div>';
-    return;
-  }
-  if(!S.favs.length){
-    G('farea').innerHTML='<div class="empty"><div class="ei">⭐</div><p>Sem favoritos ainda.<br>Vai ao Mercado e clica no ☆.</p></div>';
-    return;
-  }
-  const search=G('fs').value.toLowerCase().trim();
-  let prods=allProds().filter(p=>S.favs.includes(p.key));
-  if(search) prods=prods.filter(p=>p.name.toLowerCase().includes(search)||p.cname.toLowerCase().includes(search));
-  if(!prods.length){
-    G('farea').innerHTML=`<div class="empty"><div class="ei">🔍</div><p>Sem favoritos para "${e(search)}".</p></div>`;
-    return;
-  }
-  G('farea').innerHTML=`<p class="sbar" style="margin-bottom:.85rem">${prods.length} produto${prods.length!==1?'s':''} favorito${prods.length!==1?'s':''}</p>
-    <div class="pgrid">${prods.map((p,i)=>pcard(p,i)).join('')}</div>`;
-}
-
-function clearFavsAll(){
-  if(!confirm('Limpar todos os favoritos?'))return;
-  S.favs=[]; LS.s('tf_favs',[]);
-  renderFavs(); toast('Favoritos limpos','ok');
-}
-
-/* ═══════════════════════════════════════════════
-   PLANNER (used in Trip tab)
-═══════════════════════════════════════════════ */
-function renderPlanner(){
-  if(!S.loaded){
-    G('plan-dests').innerHTML='<p style="font-size:.77rem;color:var(--muted)">Carrega dados no Mercado.</p>';
-    G('plan-top').innerHTML='';
-    return;
-  }
-  const rows=Object.entries(CTRY).map(([code,ci])=>{
-    const d=S.stocks[code]; if(!d||(d.stocks||[]).length===0)return null;
-    const sorted=[...d.stocks].sort((a,b)=>a.cost-b.cost);
-    return{code,ci,d,ch:sorted[0]};
-  }).filter(Boolean);
-
-  G('plan-dests').innerHTML=rows.length
-    ?rows.map(r=>`
-      <div class="dsr" onclick="gv('market');setDest('${r.code}')">
+    G('plan-dests').innerHTML = rows.length ? rows.map(r => `
+      <div class="dsr" onclick="App.nav.go('market');App.market.setDest('${r.code}')">
         <div class="dsrl"><span class="dsrf">${r.ci.flag}</span>
-          <div><div class="dsrn">${r.ci.name}</div><div class="dsrc">${(r.d.stocks||[]).length} produtos</div></div></div>
-        <div class="dsrr"><div class="dsrp">desde $${fmtN(r.ch.cost)}</div><div class="dsra">↻ ${timeAgo(r.d.update*1000)}</div></div>
+          <div><div class="dsrn">${r.ci.n[L]}</div><div class="dsrc">${(r.d.stocks||[]).length}</div></div></div>
+        <div class="dsrr"><div class="dsrp">$${fmtN(r.ch.cost)}</div><div class="dsra">↻ ${timeAgo(r.d.update*1000)}</div></div>
       </div>`).join('')
-    :'<p style="font-size:.77rem;color:var(--muted)">Sem dados.</p>';
+    : `<p style="font-size:.77rem;color:var(--muted)">${t('no_data')}</p>`;
 
-  const top=allProds().filter(p=>p.qty>0).sort((a,b)=>a.cost-b.cost).slice(0,15);
-  G('plan-top').innerHTML=top.length
-    ?top.map((p,i)=>`
-      <div class="tir" onclick="gv('market');setDest('${p.code}');G('ms').value='${p.name.replace(/'/g,'').slice(0,20)}';renderMarket()">
-        <div class="tirl"><span class="tirrank">${i+1}</span>
-          <div><div class="tirn">${e(p.name)}</div><div class="tird">${p.cflag} ${e(p.cname)} · ${fmtN(p.qty)} stock</div></div></div>
-        <div class="tirp">$${fmtN(p.cost)}</div>
+    const top = App.data.allProducts().filter(p=>p.qty>0).sort((a,b)=>a.cost-b.cost).slice(0,15);
+    G('plan-top').innerHTML = top.length ? top.map((p,i) => `
+      <div class="dsr" onclick="App.nav.go('market');App.market.setDest('${p.code}');G('ms').value='${p.name.replace(/'/g,'').slice(0,18)}';App.market.render()">
+        <div class="dsrl">
+          <span style="font-family:var(--M);font-size:.6rem;color:var(--muted);width:16px;flex-shrink:0">${i+1}</span>
+          <div><div class="dsrn">${e(p.name)}</div><div class="dsrc">${p.cflag} ${e(p.cname)} · ${fmtN(p.qty)}</div></div></div>
+        <div class="dsrp">$${fmtN(p.cost)}</div>
       </div>`).join('')
-    :'<p style="font-size:.77rem;color:var(--muted)">Sem dados com stock.</p>';
+    : `<p style="font-size:.77rem;color:var(--muted)">${t('no_data')}</p>`;
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   FAVORITES MODULE
+══════════════════════════════════════════════════════════════ */
+App.favs = {
+  toggle(key) {
+    const i = App.state.favs.indexOf(key);
+    if (i >= 0) { App.state.favs.splice(i,1); toast(t('fav_removed'),'info'); }
+    else { App.state.favs.push(key); toast(t('fav_added'),'ok'); }
+    Store.set('tf_favs', App.state.favs);
+    if (G('view-market').classList.contains('active'))    App.market.render();
+    if (G('view-favorites').classList.contains('active')) this.render();
+  },
+
+  render() {
+    if (!App.state.loaded) {
+      G('farea').innerHTML=`<div class="empty"><div class="ei">⚠️</div><p>${t('no_data')}</p></div>`;return;
+    }
+    if (!App.state.favs.length) {
+      G('farea').innerHTML=`<div class="empty"><div class="ei">⭐</div><p>${t('favorites_no_favs')}</p></div>`;return;
+    }
+    const search = G('fs').value.toLowerCase().trim();
+    let prods = App.data.allProducts().filter(p=>App.state.favs.includes(p.key));
+    if (search) prods=prods.filter(p=>p.name.toLowerCase().includes(search)||p.cname.toLowerCase().includes(search));
+    if (!prods.length) { G('farea').innerHTML=`<div class="empty"><div class="ei">🔍</div><p>—</p></div>`; return; }
+    G('farea').innerHTML=`<p class="sbar" style="margin-bottom:.8rem">${prods.length}</p><div class="pgrid">${prods.map((p,i)=>App.market._card(p,i)).join('')}</div>`;
+  },
+
+  clearAll() {
+    if (!confirm(t('confirm_clear_favs'))) return;
+    App.state.favs=[]; Store.set('tf_favs',[]);
+    this.render(); toast(t('favs_cleared'),'ok');
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   NAVIGATION MODULE
+══════════════════════════════════════════════════════════════ */
+App.nav = {
+  go(name) {
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.querySelectorAll('.nb,.bnn').forEach(b=>b.classList.remove('active'));
+    G('view-'+name)?.classList.add('active');
+    G('nav-'+name)?.classList.add('active');
+    G('bnn-'+name)?.classList.add('active');
+    // Scroll to top on mobile
+    window.scrollTo({top:0,behavior:'smooth'});
+    switch(name) {
+      case 'favorites':    App.favs.render(); break;
+      case 'trip':         App.planner.render(); break;
+      case 'monitor':      App.monitor.poll(false); break;
+      case 'intelligence': App.intelligence.render(); break;
+      case 'guide':        App.guide.build(); break;
+      case 'settings':     App.auth._renderSavedSettings(); break;
+    }
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   PWA MODULE
+══════════════════════════════════════════════════════════════ */
+App.pwa = {
+  async install() {
+    if (App.state.pwaPrompt) {
+      App.state.pwaPrompt.prompt();
+      const { outcome } = await App.state.pwaPrompt.userChoice;
+      if (outcome === 'accepted') { App.state.pwaPrompt=null; G('ibanner').classList.remove('show'); }
+    } else {
+      G('inst-instr').classList.remove('hidden');
+    }
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   UTILITY FUNCTIONS
+══════════════════════════════════════════════════════════════ */
+const e    = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const j    = o => JSON.stringify(o).replace(/"/g,'&quot;');
+const fmtN = n => Number(n||0).toLocaleString('pt-PT');
+const maskKey = k => k&&k.length>8 ? k.slice(0,4)+'…'+k.slice(-4) : '****';
+const fmtDur  = s => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return `${pad(h)}:${pad(m)}:${pad(ss)}`; };
+const pad     = n => String(n||0).padStart(2,'0');
+const fmtTs   = ts => ts ? new Date(ts).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}) : '—';
+const hhmm    = ()  => new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const fmtMin  = m   => m>=60 ? `${Math.floor(m/60)}h ${m%60}m` : `${m}m`;
+
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const s = Math.floor((Date.now()-ts)/1000);
+  const tnow=t('time_now'), tmin=t('time_min'), thour=t('time_hour'), tday=t('time_day');
+  if (s<60) return tnow;
+  const m=Math.floor(s/60); if (m<60) return `${m}${tmin}`;
+  const h=Math.floor(m/60); if (h<24) return `${h}${thour}`;
+  return `${Math.floor(h/24)}${tday}`;
 }
 
-/* ═══════════════════════════════════════════════
-   SETTINGS
-═══════════════════════════════════════════════ */
-function clearCache(){
-  LS.d('tf_stocks'); LS.d('tf_items');
-  S.stocks={}; S.items={}; S.loaded=false;
-  renderMarket();
-  toast('Cache limpo — clica Atualizar','info');
+function setStatus(cls, txt) {
+  G('sdot').className = 'dot ' + cls; G('stxt').textContent = txt;
 }
 
-/* ═══════════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════════ */
-function gv(name){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  G('view-'+name).classList.add('active');
-  G('nav-'+name).classList.add('active');
-  if(name==='favorites') renderFavs();
-  if(name==='trip')      renderPlanner();
-  if(name==='monitor')   pollNow();
-  if(name==='settings')  renderSettingsAccts();
+function errState(msg) {
+  return `<div class="empty"><div class="ei">⚠️</div><p>${t('status_error')}: <code>${e(msg)}</code></p></div>`;
 }
 
-/* ═══════════════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════════════ */
-const G  = id => document.getElementById(id);
-const e  = s  => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const j  = o  => JSON.stringify(o).replace(/"/g,'&quot;');
-const fmtN  = n => Number(n||0).toLocaleString('pt-PT');
-const maskKey=k => k&&k.length>8?k.slice(0,4)+'…'+k.slice(-4):'****';
-const fmtDur= s => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return `${pad(h)}:${pad(m)}:${pad(ss)}`; };
-const pad   = n => String(n||0).padStart(2,'0');
-const fmtTs = ts=> ts?new Date(ts).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}):'—';
-const hhmm  = () => new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-const fmtMin= m => m>=60?`${Math.floor(m/60)}h ${m%60}m`:`${m}m`;
-const cname = c => CTRY[c?.toLowerCase()]?.name||c||'Desconhecido';
-const cflag = c => CTRY[c?.toLowerCase()]?.flag||'🌍';
-function timeAgo(ts){
-  if(!ts)return'—';
-  const s=Math.floor((Date.now()-ts)/1000);
-  if(s<60)return'agora';
-  const m=Math.floor(s/60);
-  if(m<60)return`${m}m atrás`;
-  const h=Math.floor(m/60);
-  if(h<24)return`${h}h atrás`;
-  return`${Math.floor(h/24)}d atrás`;
-}
-function setStatus(cls,txt){ G('sdot').className='dot '+cls; G('stxt').textContent=txt; }
-function showSkel(){ G('marea').innerHTML=`<div class="sgrid">${Array(8).fill('<div class="skel"></div>').join('')}</div>`; }
-function errState(msg){ return`<div class="empty"><div class="ei">⚠️</div><p>Erro: <code>${e(msg)}</code><br>Verifica API Key e ligação à internet.</p></div>`; }
-function showErr(el2,msg){ el2.textContent=msg; el2.classList.remove('hidden'); }
-function setBtn(id,t,d){ const b=G(id); if(b){b.textContent=t;b.disabled=d;} }
-let _tt;
-function toast(msg,type=''){
-  const t=G('toast'); t.textContent=msg; t.className='show '+type;
-  clearTimeout(_tt); _tt=setTimeout(()=>t.className='',2700);
+function showErr(el, msg) { el.textContent=msg; el.classList.remove('hidden'); }
+function setBtn(id, tx, d) { const b=G(id); if(b){b.innerHTML=tx;b.disabled=d;} }
+
+let _toastTimer;
+function toast(msg, type='') {
+  const el=G('toast'); el.textContent=msg; el.className='show '+type;
+  clearTimeout(_toastTimer); _toastTimer=setTimeout(()=>el.className='',2800);
 }
 
-/* BOOT */
-init();
+/* ══════════════════════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════════════════════ */
+async function boot() {
+  // Load language first
+  const savedLang = Store.get('tf_lang') || 'pt';
+  await App.lang.load(savedLang);
+
+  // Update lang buttons
+  ['pt','en'].forEach(c => {
+    const b = G('lb-'+c); if (b) b.className='lbtn'+(c===savedLang?' on':'');
+  });
+  document.querySelectorAll('.lang-row .lbtn').forEach(b => {
+    const isEN = b.textContent.includes('EN') || b.textContent.includes('English');
+    const code = isEN ? 'en' : 'pt';
+    b.className = 'lbtn'+(code===savedLang?' on':'');
+  });
+
+  // PWA events
+  window.addEventListener('beforeinstallprompt', ev => {
+    ev.preventDefault(); App.state.pwaPrompt = ev;
+    G('ibanner').classList.add('show');
+  });
+  window.addEventListener('appinstalled', () => {
+    G('ibanner').classList.remove('show'); App.state.pwaPrompt=null;
+  });
+
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+
+  // Render saved accounts on login page
+  App.auth._renderSavedLogin();
+
+  // Auto-login if remembered
+  const last = Store.get('tf_lastuser');
+  if (last && last.apiKey) App.auth._loginAs(last, false);
+}
+
+boot();
 </script>
 </body>
 </html>
